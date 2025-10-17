@@ -17,16 +17,14 @@
 ### 1. 단순화된 브랜치 전략
 ```
 main (메인 브랜치)
-├── feature/database-migration     # 4단계: DB 전환 작업
-├── feature/api-integration        # 4단계: API 연동 작업  
-├── feature/data-sync             # 4단계: 데이터 동기화
-├── feature/testing               # 5단계: 통합 테스트
-└── feature/deployment            # 5단계: 배포 설정
+├── feature/microservice-refactoring  # 4단계: 마이크로서비스 리팩토링
+├── feature/database-migration        # 4단계: DB 전환 작업 (보류)
+├── feature/testing                   # 5단계: 통합 테스트
+└── feature/deployment                # 5단계: 배포 설정
 ```
 
 ### 2. 작업 단계별 브랜치 관리
-- **현재 진행 중**: `feature/api-integration` (4단계)
-- **다음 예정**: `feature/data-sync` (4단계)
+- **현재 진행 중**: `feature/microservice-refactoring` (4단계)
 - **완료 후**: `feature/testing` (5단계)
 
 ## 🔧 Cursor IDE Git 워크플로우
