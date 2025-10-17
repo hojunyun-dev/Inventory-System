@@ -2,6 +2,8 @@
 
 다양한 온라인 마켓에 등록된 자동차 부품 재고를 한 번에 관리하는 마이크로서비스 아키텍처 기반 시스템입니다.
 
+**현재 상태**: 프로젝트 초기 설정 및 문서화 단계 (2025년 10월 17일)
+
 ## 📋 프로젝트 개요
 
 ### 핵심 기능
@@ -105,15 +107,19 @@ npm start
 
 ## 🔧 개발 가이드
 
-### 프로젝트 구조
+### 현재 프로젝트 구조
 ```
 inventory-system/
-├── backend/                    # 메인 재고관리 서비스
-├── frontend/                   # React 프론트엔드
-├── token-management-service/   # 토큰 관리 서비스
-├── registration-service/       # 플랫폼 등록 서비스
-└── docs/                      # 문서
+├── backend/                    # 메인 재고관리 서비스 (컴파일된 클래스 포함)
+├── token-management-service/   # 토큰 관리 서비스 (컴파일된 클래스 포함)
+├── registration-service/       # 플랫폼 등록 서비스 (컴파일된 클래스 포함)
+├── README.md                   # 프로젝트 문서
+├── .gitignore                  # Git 제외 파일 설정
+├── GITHUB_UPLOAD_GUIDE.md     # GitHub 업로드 가이드
+└── PERSONAL_GIT_STRATEGY.md   # 개인 개발 Git 전략
 ```
+
+**참고**: 현재 소스 코드(.java)는 target/ 디렉토리에 컴파일된 상태로만 존재합니다.
 
 ### 개발 환경 설정
 1. IDE 설정 (IntelliJ IDEA 권장)
@@ -176,5 +182,6 @@ kubectl apply -f k8s/
 
 ---
 
-**개발 상태**: 4단계 (재고관리 시스템 리팩토링) 진행 중  
-**마지막 업데이트**: 2025년 10월 17일
+**개발 상태**: 프로젝트 초기 설정 및 문서화 완료  
+**마지막 업데이트**: 2025년 10월 17일  
+**다음 단계**: 소스 코드 구현 및 마이크로서비스 개발

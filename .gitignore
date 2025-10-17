@@ -23,7 +23,7 @@
 hs_err_pid*
 
 # Maven
-target/
+# target/  # 주석 처리 - 컴파일된 클래스 포함
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
@@ -121,3 +121,12 @@ frontend-backup/frontend.log
 # Backup files
 *backup*
 *backup-*
+
+# Allow main service directories and compiled classes
+!backend/
+!backend/target/
+!token-management-service/
+!token-management-service/target/
+!registration-service/
+!registration-service/target/
+!frontend/
