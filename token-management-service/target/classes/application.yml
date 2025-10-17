@@ -1,0 +1,71 @@
+server:
+  port: 8081
+  tomcat:
+    uri-encoding: UTF-8
+    relaxed-query-chars: ['[', ']']
+
+spring:
+  application:
+    name: token-management-service
+  
+  datasource:
+    url: jdbc:mariadb://localhost:3307/token_management_db
+    driverClassName: org.mariadb.jdbc.Driver
+    username: inventory
+    password: inventory123
+  
+  jpa:
+    database-platform: org.hibernate.dialect.MariaDBDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+  
+  security:
+    user:
+      name: admin
+      password: admin123
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:mySecretKey123456789012345678901234567890}
+  expiration: 86400000 # 24 hours
+
+# OAuth 2.0 Configuration
+oauth:
+  naver:
+    client-id: ${NAVER_CLIENT_ID:}
+    client-secret: ${NAVER_CLIENT_SECRET:}
+    token-url: https://nid.naver.com/oauth2.0/token
+    scope: commerce
+    
+  cafe24:
+    client-id: ${CAFE24_CLIENT_ID:}
+    client-secret: ${CAFE24_CLIENT_SECRET:}
+    token-url: https://your-mall.cafe24api.com/api/v2/oauth/token
+    scope: mall.read_application mall.write_application
+    
+  coupang:
+    access-key: ${COUPANG_ACCESS_KEY:}
+    secret-key: ${COUPANG_SECRET_KEY:}
+    token-url: https://api-gateway.coupang.com/token
+
+# Encryption Configuration
+encryption:
+  algorithm: AES
+  key: ${ENCRYPTION_KEY:myEncryptionKey123456789012345678901234567890}
+
+# Service Configuration
+service:
+  token-refresh-threshold: 300 # 5 minutes before expiry
+  max-retry-attempts: 3
+  retry-delay: 1000 # 1 second
+
+logging:
+  level:
+    com.inventory.token: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
