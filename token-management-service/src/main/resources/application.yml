@@ -48,11 +48,19 @@ oauth:
       inquiries: /inquiries
       settlements: /settlements
     
-  cafe24:
-    client-id: ${CAFE24_CLIENT_ID:}
-    client-secret: ${CAFE24_CLIENT_SECRET:}
-    token-url: https://your-mall.cafe24api.com/api/v2/oauth/token
-    scope: mall.read_application mall.write_application
+        cafe24:
+          client-id: ${CAFE24_CLIENT_ID:}
+          client-secret: ${CAFE24_CLIENT_SECRET:}
+          token-url: https://your-mall.cafe24api.com/api/v2/oauth/token
+          authorize-url: https://your-mall.cafe24api.com/api/v2/oauth/authorize
+          revoke-url: https://your-mall.cafe24api.com/api/v2/oauth/revoke
+          scope: mall.read_application mall.write_application
+          api-base-url: https://your-mall.cafe24api.com/api/v2/admin
+          endpoints:
+            products: /products
+            orders: /orders
+            customers: /customers
+            boards: /boards
     
   coupang:
     access-key: ${COUPANG_ACCESS_KEY:}

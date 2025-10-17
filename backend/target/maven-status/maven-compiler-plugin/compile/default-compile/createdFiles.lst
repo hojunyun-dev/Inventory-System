@@ -1,4 +1,5 @@
 com/inventory/repository/ProductRepository.class
+com/inventory/controller/DataSyncController.class
 com/inventory/controller/OrderController.class
 com/inventory/entity/PartType.class
 com/inventory/repository/MessageRepository.class
@@ -42,7 +43,7 @@ com/inventory/entity/Product.class
 com/inventory/dto/RegistrationRequest$RegistrationRequestBuilder.class
 com/inventory/dto/RegistrationResponse.class
 com/inventory/entity/SerializedInventory.class
+com/inventory/service/DataSyncService.class
 com/inventory/controller/PlatformIntegrationController.class
 com/inventory/dto/PlatformProductResponse.class
-com/inventory/service/TokenManagementService.class
 com/inventory/config/InventoryDataInitializer.class
