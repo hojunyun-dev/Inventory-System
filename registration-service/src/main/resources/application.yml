@@ -36,6 +36,13 @@ token-service:
     tokens: /api/tokens
     accounts: /api/accounts
 
+# OAuth 2.0 Configuration
+oauth:
+  naver:
+    api-base-url: https://api.commerce.naver.com
+    client-id: ${NAVER_CLIENT_ID:}
+    client-secret: ${NAVER_CLIENT_SECRET:}
+
 # Platform-specific configurations
 platforms:
   naver:
@@ -43,6 +50,9 @@ platforms:
     endpoints:
       products: /products
       categories: /categories
+      orders: /orders
+      inquiries: /inquiries
+      settlements: /settlements
   cafe24:
     api-base-url: https://your-store.cafe24api.com
     endpoints:
