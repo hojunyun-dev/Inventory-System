@@ -14,18 +14,22 @@
 
 ## 🎯 개인 개발 최적화 전략
 
-### 1. 단순화된 브랜치 전략
+### 1. 단순화된 브랜치 전략 (권장)
 ```
-main (메인 브랜치)
-├── feature/microservice-refactoring  # 4단계: 마이크로서비스 리팩토링
-├── feature/database-migration        # 4단계: DB 전환 작업 (보류)
-├── feature/testing                   # 5단계: 통합 테스트
-└── feature/deployment                # 5단계: 배포 설정
+main (안정적인 메인 브랜치 - GitHub에 배포)
+└── develop (개발 작업 브랜치 - 모든 개발 작업)
 ```
 
-### 2. 작업 단계별 브랜치 관리
-- **현재 진행 중**: `feature/microservice-refactoring` (4단계)
-- **완료 후**: `feature/testing` (5단계)
+### 2. 브랜치 역할 정의
+- **main**: 
+  - 안정적이고 배포 가능한 코드
+  - GitHub에서 메인 브랜치로 사용
+  - 주요 마일스톤 완료 시만 병합
+  
+- **develop**: 
+  - 모든 개발 작업 진행
+  - 기능 개발, 버그 수정, 리팩토링
+  - 일상적인 커밋과 푸시
 
 ## 🔧 Cursor IDE Git 워크플로우
 
@@ -142,34 +146,40 @@ feature/deployment
 
 ### 매일 작업 시작 시
 ```bash
-# 최신 변경사항 가져오기
+# develop 브랜치에서 작업 (일반적인 경우)
+git checkout develop
+git pull origin develop  # 다른 기기에서 작업한 경우
+
+# 또는 main에서 최신 변경사항 확인
 git checkout main
 git pull origin main
-
-# 작업 브랜치 전환
-git checkout feature/current-work
-git rebase main  # 선택사항
+git checkout develop
 ```
 
-### 작업 중간 커밋
+### 작업 중간 커밋 (develop 브랜치에서)
 ```bash
 # Cursor GUI 사용 (권장)
 # 1. Source Control 패널에서 변경사항 확인
 # 2. 스테이징할 파일 선택
 # 3. 커밋 메시지 작성
 # 4. 커밋 버튼 클릭
-```
 
-### 작업 완료 시
-```bash
-# 작업 브랜치에서 최종 커밋
+# 또는 터미널 사용
 git add .
 git commit -m "feat: [기능명] 구현 완료"
+git push origin develop
+```
 
-# main 브랜치로 병합
+### 주요 마일스톤 완료 시 (main 브랜치 병합)
+```bash
+# develop에서 main으로 병합
 git checkout main
-git merge feature/current-work
+git merge develop
 git push origin main
+
+# 태그 생성 (선택사항)
+git tag -a v1.0.0 -m "Release version 1.0.0"
+git push origin v1.0.0
 ```
 
 ## 🛠️ 문제 해결 및 팁
@@ -226,11 +236,23 @@ git push origin v1.0.0
 
 ---
 
-## 🎯 권장 워크플로우
+## 🎯 권장 워크플로우 (개인 개발)
 
-1. **작업 시작**: `feature/작업명` 브랜치 생성
-2. **작업 중**: Cursor GUI로 자주 커밋
-3. **작업 완료**: main 브랜치로 병합
-4. **정리**: 작업 브랜치 삭제
+### 일상적인 개발 작업
+1. **작업 시작**: `develop` 브랜치에서 작업
+2. **작업 중**: Cursor GUI로 자주 커밋 및 푸시
+3. **작업 완료**: `develop` 브랜치에 계속 커밋
 
-이 방식으로 **개인 개발에 최적화된 Git 워크플로우**를 구축할 수 있습니다!
+### 주요 마일스톤 완료 시
+1. **안정성 확인**: `develop` 브랜치에서 테스트 완료
+2. **main 병합**: `develop` → `main` 병합
+3. **태그 생성**: 버전 태그 생성 (v1.0.0, v1.1.0 등)
+4. **배포**: GitHub에서 릴리스 노트 작성
+
+### 향후 팀 개발 확장 시
+1. **feature 브랜치**: `develop`에서 `feature/기능명` 브랜치 생성
+2. **PR 생성**: `feature/기능명` → `develop` Pull Request
+3. **코드 리뷰**: 팀원들의 리뷰 후 병합
+4. **릴리스**: `develop` → `main` 병합 후 배포
+
+이 방식으로 **개인 개발부터 팀 개발까지 확장 가능한 Git 워크플로우**를 구축할 수 있습니다!
