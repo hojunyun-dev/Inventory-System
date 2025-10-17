@@ -1,0 +1,73 @@
+server:
+  port: 8080
+  tomcat:
+    uri-encoding: UTF-8
+    relaxed-query-chars: ['[', ']']
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:inventory_db
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+  
+  security:
+    user:
+      name: admin
+      password: admin123
+
+# 마이크로서비스 연동 설정
+token-management-service:
+  url: http://localhost:8081
+
+registration-service:
+  url: http://localhost:8082
+
+# API 연동 설정 (레거시 - 향후 제거 예정)
+cafe24:
+  api:
+    base-url: https://your-mall.cafe24api.com/api/v2
+    client-id: ${CAFE24_CLIENT_ID:}
+    client-secret: ${CAFE24_CLIENT_SECRET:}
+    access-token: ${CAFE24_ACCESS_TOKEN:}
+
+naver:
+  api:
+    base-url: https://api.commerce.naver.com
+    client-id: ${NAVER_CLIENT_ID:}
+    client-secret: ${NAVER_CLIENT_SECRET:}
+    access-token: ${NAVER_ACCESS_TOKEN:}
+
+coupang:
+  api:
+    base-url: https://api-gateway.coupang.com
+    access-key: ${COUPANG_ACCESS_KEY:}
+    secret-key: ${COUPANG_SECRET_KEY:}
+
+# Gparts API 설정
+gparts:
+  api:
+    base-url: https://api.gparts.co.kr
+    api-key: ${GPARTS_API_KEY:}
+    secret-key: ${GPARTS_SECRET_KEY:}
+    timeout: 30000
+    batch-size: 100
+
+logging:
+  level:
+    com.inventory: DEBUG
+    org.springframework.web: DEBUG
