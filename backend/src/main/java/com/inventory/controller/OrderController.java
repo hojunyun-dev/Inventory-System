@@ -53,5 +53,16 @@ public class OrderController {
         orderRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<Order>> getOrdersByStatus(@PathVariable String status) {
+        try {
+            Order.OrderStatus orderStatus = Order.OrderStatus.valueOf(status.toUpperCase());
+            List<Order> orders = orderRepository.findByStatus(orderStatus);
+            return ResponseEntity.ok(orders);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }
 
