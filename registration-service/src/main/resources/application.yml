@@ -47,6 +47,9 @@ token-service:
       client-id: ${CAFE24_CLIENT_ID:}
       client-secret: ${CAFE24_CLIENT_SECRET:}
       mall-id: ${CAFE24_MALL_ID:}
+    coupang:
+      api-base-url: https://api-gateway.coupang.com/v2/providers/openapi/apis/api/v1
+      api-key: ${COUPANG_API_KEY:}
 
 # Platform-specific configurations
 platforms:
@@ -67,9 +70,11 @@ platforms:
             boards: /boards
             categories: /categories
   coupang:
-    api-base-url: https://api-gateway.coupang.com
+    api-base-url: https://api-gateway.coupang.com/v2/providers/openapi/apis/api/v1
     endpoints:
-      products: /v2/providers/affiliate_open_api/apis/openapi/products
+      products: /marketplace/seller-products
+      orders: /ordersheets
+      settlements: /settlements
   bunjang:
     base-url: https://m.bunjang.co.kr
     endpoints:

@@ -9,245 +9,245 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class Cafe24Service {
+public class CoupangService {
 
     private final WebClient.Builder webClientBuilder;
 
-    @Value("${oauth.cafe24.api-base-url}")
-    private String cafe24ApiBaseUrl;
-    @Value("${oauth.cafe24.mall-id}")
-    private String mallId;
-    @Value("${oauth.cafe24.client-id}")
-    private String clientId;
-    @Value("${oauth.cafe24.client-secret}")
-    private String clientSecret;
-    @Value("${platforms.cafe24.endpoints.products}")
+    @Value("${oauth.coupang.api-base-url}")
+    private String coupangApiBaseUrl;
+    @Value("${oauth.coupang.api-key}")
+    private String apiKey;
+    @Value("${platforms.coupang.endpoints.products}")
     private String productsEndpoint;
-    @Value("${platforms.cafe24.endpoints.orders}")
+    @Value("${platforms.coupang.endpoints.orders}")
     private String ordersEndpoint;
-    @Value("${platforms.cafe24.endpoints.customers}")
-    private String customersEndpoint;
-    @Value("${platforms.cafe24.endpoints.boards}")
-    private String boardsEndpoint;
-    @Value("${platforms.cafe24.endpoints.categories}")
-    private String categoriesEndpoint;
+    @Value("${platforms.coupang.endpoints.settlements}")
+    private String settlementsEndpoint;
 
     /**
-     * 카페24 상품 등록
+     * 쿠팡 상품 등록
      */
     @SuppressWarnings("unchecked")
     public Mono<Map<String, Object>> registerProduct(Map<String, Object> productData) {
-        String accessToken = "Bearer " + clientId; // 임시 토큰
         return webClientBuilder.build()
                 .post()
-                .uri(cafe24ApiBaseUrl + productsEndpoint)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .uri(coupangApiBaseUrl + productsEndpoint)
+                .header(HttpHeaders.AUTHORIZATION, apiKey)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(productData)
                 .retrieve()
                 .bodyToMono(Map.class)
                 .map(result -> (Map<String, Object>) result)
                 .doOnSuccess(response -> {
-                    log.info("카페24 상품 등록 성공: {}", response);
+                    log.info("쿠팡 상품 등록 성공: {}", response);
                 })
                 .doOnError(error -> {
-                    log.error("카페24 상품 등록 실패: {}", error.getMessage());
+                    log.error("쿠팡 상품 등록 실패: {}", error.getMessage());
                 });
     }
 
     /**
-     * 카페24 상품 수정
+     * 쿠팡 상품 수정
      */
     @SuppressWarnings("unchecked")
-    public Mono<Map<String, Object>> updateProduct(String productId, Map<String, Object> productData) {
-        String accessToken = "Bearer " + clientId; // 임시 토큰
+    public Mono<Map<String, Object>> updateProduct(String sellerProductId, Map<String, Object> productData) {
         return webClientBuilder.build()
                 .put()
-                .uri(cafe24ApiBaseUrl + productsEndpoint + "/" + productId)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .uri(coupangApiBaseUrl + productsEndpoint + "/" + sellerProductId)
+                .header(HttpHeaders.AUTHORIZATION, apiKey)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(productData)
                 .retrieve()
                 .bodyToMono(Map.class)
                 .map(result -> (Map<String, Object>) result)
                 .doOnSuccess(response -> {
-                    log.info("카페24 상품 수정 성공: {}", response);
+                    log.info("쿠팡 상품 수정 성공: {}", response);
                 })
                 .doOnError(error -> {
-                    log.error("카페24 상품 수정 실패: {}", error.getMessage());
+                    log.error("쿠팡 상품 수정 실패: {}", error.getMessage());
                 });
     }
 
     /**
-     * 카페24 상품 삭제
+     * 쿠팡 상품 삭제
      */
     @SuppressWarnings("unchecked")
-    public Mono<Map<String, Object>> deleteProduct(String productId) {
-        String accessToken = "Bearer " + clientId; // 임시 토큰
+    public Mono<Map<String, Object>> deleteProduct(String sellerProductId) {
         return webClientBuilder.build()
                 .delete()
-                .uri(cafe24ApiBaseUrl + productsEndpoint + "/" + productId)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .uri(coupangApiBaseUrl + productsEndpoint + "/" + sellerProductId)
+                .header(HttpHeaders.AUTHORIZATION, apiKey)
                 .retrieve()
                 .bodyToMono(Map.class)
                 .map(result -> (Map<String, Object>) result)
                 .doOnSuccess(response -> {
-                    log.info("카페24 상품 삭제 성공: {}", response);
+                    log.info("쿠팡 상품 삭제 성공: {}", response);
                 })
                 .doOnError(error -> {
-                    log.error("카페24 상품 삭제 실패: {}", error.getMessage());
+                    log.error("쿠팡 상품 삭제 실패: {}", error.getMessage());
                 });
     }
 
     /**
-     * 카페24 상품 조회
+     * 쿠팡 상품 조회
      */
     @SuppressWarnings("unchecked")
-    public Mono<Map<String, Object>> getProduct(String productId) {
-        String accessToken = "Bearer " + clientId; // 임시 토큰
+    public Mono<Map<String, Object>> getProduct(String sellerProductId) {
         return webClientBuilder.build()
                 .get()
-                .uri(cafe24ApiBaseUrl + productsEndpoint + "/" + productId)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .uri(coupangApiBaseUrl + productsEndpoint + "/" + sellerProductId)
+                .header(HttpHeaders.AUTHORIZATION, apiKey)
                 .retrieve()
                 .bodyToMono(Map.class)
                 .map(result -> (Map<String, Object>) result)
                 .doOnSuccess(response -> {
-                    log.info("카페24 상품 조회 성공: {}", response);
+                    log.info("쿠팡 상품 조회 성공: {}", response);
                 })
                 .doOnError(error -> {
-                    log.error("카페24 상품 조회 실패: {}", error.getMessage());
+                    log.error("쿠팡 상품 조회 실패: {}", error.getMessage());
                 });
     }
 
     /**
-     * 카페24 상품 목록 조회
+     * 쿠팡 상품 목록 조회
      */
     @SuppressWarnings("unchecked")
     public Mono<Map<String, Object>> getAllProducts(Map<String, String> queryParams) {
-        String accessToken = "Bearer " + clientId; // 임시 토큰
         return webClientBuilder.build()
                 .get()
                 .uri(uriBuilder -> {
-                    uriBuilder.path(cafe24ApiBaseUrl + productsEndpoint);
+                    uriBuilder.path(coupangApiBaseUrl + productsEndpoint);
                     queryParams.forEach(uriBuilder::queryParam);
                     return uriBuilder.build();
                 })
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .header(HttpHeaders.AUTHORIZATION, apiKey)
                 .retrieve()
                 .bodyToMono(Map.class)
                 .map(result -> (Map<String, Object>) result)
                 .doOnSuccess(response -> {
-                    log.info("카페24 상품 목록 조회 성공: {}", response);
+                    log.info("쿠팡 상품 목록 조회 성공: {}", response);
                 })
                 .doOnError(error -> {
-                    log.error("카페24 상품 목록 조회 실패: {}", error.getMessage());
+                    log.error("쿠팡 상품 목록 조회 실패: {}", error.getMessage());
                 });
     }
 
     /**
-     * 카페24 주문 조회
+     * 쿠팡 발주서 목록 조회
      */
     @SuppressWarnings("unchecked")
     public Mono<Map<String, Object>> getOrders(Map<String, String> queryParams) {
-        String accessToken = "Bearer " + clientId; // 임시 토큰
         return webClientBuilder.build()
                 .get()
                 .uri(uriBuilder -> {
-                    uriBuilder.path(cafe24ApiBaseUrl + ordersEndpoint);
+                    uriBuilder.path(coupangApiBaseUrl + ordersEndpoint);
                     queryParams.forEach(uriBuilder::queryParam);
                     return uriBuilder.build();
                 })
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .header(HttpHeaders.AUTHORIZATION, apiKey)
                 .retrieve()
                 .bodyToMono(Map.class)
                 .map(result -> (Map<String, Object>) result)
                 .doOnSuccess(response -> {
-                    log.info("카페24 주문 조회 성공: {}", response);
+                    log.info("쿠팡 발주서 목록 조회 성공: {}", response);
                 })
                 .doOnError(error -> {
-                    log.error("카페24 주문 조회 실패: {}", error.getMessage());
+                    log.error("쿠팡 발주서 목록 조회 실패: {}", error.getMessage());
                 });
     }
 
     /**
-     * 카페24 고객 조회
+     * 쿠팡 발주서 단건 조회
      */
     @SuppressWarnings("unchecked")
-    public Mono<Map<String, Object>> getCustomers(Map<String, String> queryParams) {
-        String accessToken = "Bearer " + clientId; // 임시 토큰
+    public Mono<Map<String, Object>> getOrder(String shipmentBoxId) {
         return webClientBuilder.build()
                 .get()
-                .uri(uriBuilder -> {
-                    uriBuilder.path(cafe24ApiBaseUrl + customersEndpoint);
-                    queryParams.forEach(uriBuilder::queryParam);
-                    return uriBuilder.build();
-                })
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .uri(coupangApiBaseUrl + ordersEndpoint + "/" + shipmentBoxId)
+                .header(HttpHeaders.AUTHORIZATION, apiKey)
                 .retrieve()
                 .bodyToMono(Map.class)
                 .map(result -> (Map<String, Object>) result)
                 .doOnSuccess(response -> {
-                    log.info("카페24 고객 조회 성공: {}", response);
+                    log.info("쿠팡 발주서 단건 조회 성공: {}", response);
                 })
                 .doOnError(error -> {
-                    log.error("카페24 고객 조회 실패: {}", error.getMessage());
+                    log.error("쿠팡 발주서 단건 조회 실패: {}", error.getMessage());
                 });
     }
 
     /**
-     * 카페24 카테고리 조회
+     * 쿠팡 배송 상태 변경
      */
     @SuppressWarnings("unchecked")
-    public Mono<Map<String, Object>> getCategories(Map<String, String> queryParams) {
-        String accessToken = "Bearer " + clientId; // 임시 토큰
+    public Mono<Map<String, Object>> updateShippingStatus(String shipmentBoxId, Map<String, Object> statusData) {
         return webClientBuilder.build()
-                .get()
-                .uri(uriBuilder -> {
-                    uriBuilder.path(cafe24ApiBaseUrl + categoriesEndpoint);
-                    queryParams.forEach(uriBuilder::queryParam);
-                    return uriBuilder.build();
-                })
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .put()
+                .uri(coupangApiBaseUrl + ordersEndpoint + "/" + shipmentBoxId + "/acknowledge")
+                .header(HttpHeaders.AUTHORIZATION, apiKey)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(statusData)
                 .retrieve()
                 .bodyToMono(Map.class)
                 .map(result -> (Map<String, Object>) result)
                 .doOnSuccess(response -> {
-                    log.info("카페24 카테고리 조회 성공: {}", response);
+                    log.info("쿠팡 배송 상태 변경 성공: {}", response);
                 })
                 .doOnError(error -> {
-                    log.error("카페24 카테고리 조회 실패: {}", error.getMessage());
+                    log.error("쿠팡 배송 상태 변경 실패: {}", error.getMessage());
                 });
     }
 
     /**
-     * 카페24 게시판 조회
+     * 쿠팡 매출 내역 조회
      */
     @SuppressWarnings("unchecked")
-    public Mono<Map<String, Object>> getBoards(Map<String, String> queryParams) {
-        String accessToken = "Bearer " + clientId; // 임시 토큰
+    public Mono<Map<String, Object>> getSalesHistory(Map<String, String> queryParams) {
         return webClientBuilder.build()
                 .get()
                 .uri(uriBuilder -> {
-                    uriBuilder.path(cafe24ApiBaseUrl + boardsEndpoint);
+                    uriBuilder.path(coupangApiBaseUrl + settlementsEndpoint + "/sales-history");
                     queryParams.forEach(uriBuilder::queryParam);
                     return uriBuilder.build();
                 })
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .header(HttpHeaders.AUTHORIZATION, apiKey)
                 .retrieve()
                 .bodyToMono(Map.class)
                 .map(result -> (Map<String, Object>) result)
                 .doOnSuccess(response -> {
-                    log.info("카페24 게시판 조회 성공: {}", response);
+                    log.info("쿠팡 매출 내역 조회 성공: {}", response);
                 })
                 .doOnError(error -> {
-                    log.error("카페24 게시판 조회 실패: {}", error.getMessage());
+                    log.error("쿠팡 매출 내역 조회 실패: {}", error.getMessage());
+                });
+    }
+
+    /**
+     * 쿠팡 지급 내역 조회
+     */
+    @SuppressWarnings("unchecked")
+    public Mono<Map<String, Object>> getPaymentHistory(Map<String, String> queryParams) {
+        return webClientBuilder.build()
+                .get()
+                .uri(uriBuilder -> {
+                    uriBuilder.path(coupangApiBaseUrl + settlementsEndpoint + "/payment-history");
+                    queryParams.forEach(uriBuilder::queryParam);
+                    return uriBuilder.build();
+                })
+                .header(HttpHeaders.AUTHORIZATION, apiKey)
+                .retrieve()
+                .bodyToMono(Map.class)
+                .map(result -> (Map<String, Object>) result)
+                .doOnSuccess(response -> {
+                    log.info("쿠팡 지급 내역 조회 성공: {}", response);
+                })
+                .doOnError(error -> {
+                    log.error("쿠팡 지급 내역 조회 실패: {}", error.getMessage());
                 });
     }
 }
