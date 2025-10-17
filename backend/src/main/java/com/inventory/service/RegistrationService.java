@@ -2,19 +2,22 @@ package com.inventory.service;
 
 import com.inventory.dto.RegistrationRequest;
 import com.inventory.dto.RegistrationResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class RegistrationService {
 
-    private final WebClient webClient;
+    private final WebClient registrationServiceWebClient;
+    
+    public RegistrationService(@Qualifier("registrationServiceWebClient") WebClient registrationServiceWebClient) {
+        this.registrationServiceWebClient = registrationServiceWebClient;
+    }
 
     @Value("${registration-service.url:http://localhost:8082}")
     private String registrationServiceUrl;
@@ -25,7 +28,7 @@ public class RegistrationService {
     public Mono<RegistrationResponse> registerProduct(RegistrationRequest request) {
         log.info("Registering product via registration service: {}", request.getProductName());
         
-        return webClient.post()
+        return registrationServiceWebClient.post()
                 .uri(registrationServiceUrl + "/api/registrations")
                 .bodyValue(request)
                 .retrieve()
@@ -40,7 +43,7 @@ public class RegistrationService {
     public Mono<RegistrationResponse> getRegistrationStatus(String platform) {
         log.info("Getting registration status for platform: {}", platform);
         
-        return webClient.get()
+        return registrationServiceWebClient.get()
                 .uri(registrationServiceUrl + "/api/registrations/status/" + platform)
                 .retrieve()
                 .bodyToMono(RegistrationResponse.class)

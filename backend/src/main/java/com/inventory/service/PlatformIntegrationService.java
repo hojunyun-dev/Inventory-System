@@ -7,6 +7,7 @@ import com.inventory.dto.RegistrationRequest;
 import com.inventory.dto.RegistrationResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -15,13 +16,21 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class PlatformIntegrationService {
 
-    private final WebClient webClient;
+    private final WebClient tokenServiceWebClient;
     private final TokenManagementService tokenManagementService;
     private final RegistrationService registrationService;
+    
+    public PlatformIntegrationService(
+            @Qualifier("tokenServiceWebClient") WebClient tokenServiceWebClient,
+            TokenManagementService tokenManagementService,
+            RegistrationService registrationService) {
+        this.tokenServiceWebClient = tokenServiceWebClient;
+        this.tokenManagementService = tokenManagementService;
+        this.registrationService = registrationService;
+    }
 
     @Value("${token-management-service.url:http://localhost:8081}")
     private String tokenManagementServiceUrl;
@@ -52,7 +61,7 @@ public class PlatformIntegrationService {
         return tokenManagementService.getToken("naver")
                 .flatMap(token -> {
                     // 토큰을 사용하여 네이버 API 호출
-                    return webClient.post()
+                    return tokenServiceWebClient.post()
                             .uri("https://api.commerce.naver.com/products")
                             .header("Authorization", "Bearer " + token.getAccessToken())
                             .bodyValue(buildNaverPayload(request))
@@ -84,7 +93,7 @@ public class PlatformIntegrationService {
     private Mono<PlatformProductResponse> registerToCafe24(PlatformProductRequest request) {
         return tokenManagementService.getToken("cafe24")
                 .flatMap(token -> {
-                    return webClient.post()
+                    return tokenServiceWebClient.post()
                             .uri("https://your-mall.cafe24api.com/api/v2/admin/products")
                             .header("Authorization", "Bearer " + token.getAccessToken())
                             .bodyValue(buildCafe24Payload(request))
@@ -116,7 +125,7 @@ public class PlatformIntegrationService {
     private Mono<PlatformProductResponse> registerToCoupang(PlatformProductRequest request) {
         return tokenManagementService.getToken("coupang")
                 .flatMap(token -> {
-                    return webClient.post()
+                    return tokenServiceWebClient.post()
                             .uri("https://api-gateway.coupang.com/v2/providers/seller_api/apis/api/v1/products")
                             .header("Authorization", "Bearer " + token.getAccessToken())
                             .bodyValue(buildCoupangPayload(request))
@@ -173,7 +182,7 @@ public class PlatformIntegrationService {
      * 토큰 관리 서비스 연동
      */
     private Mono<TokenResponse> getTokenFromTokenService(String platform) {
-        return webClient.get()
+        return tokenServiceWebClient.get()
                 .uri(tokenManagementServiceUrl + "/api/tokens/" + platform)
                 .retrieve()
                 .bodyToMono(TokenResponse.class);
@@ -183,7 +192,7 @@ public class PlatformIntegrationService {
      * 등록 서비스 연동
      */
     private Mono<RegistrationResponse> registerProductViaRegistrationService(RegistrationRequest request) {
-        return webClient.post()
+        return tokenServiceWebClient.post()
                 .uri(registrationServiceUrl + "/api/registrations")
                 .bodyValue(request)
                 .retrieve()
