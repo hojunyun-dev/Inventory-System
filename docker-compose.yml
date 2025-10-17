@@ -1,20 +1,101 @@
 version: '3.8'
 
 services:
+  # MariaDB 데이터베이스
   mariadb:
     image: mariadb:10.11
     container_name: inventory-mariadb
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword123
-      MYSQL_DATABASE: token_management_db
+      MYSQL_DATABASE: inventory_system
       MYSQL_USER: inventory
       MYSQL_PASSWORD: inventory123
     ports:
       - "3307:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
+      - ./database/init:/docker-entrypoint-initdb.d
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      - inventory-network
+
+  # 백엔드 서비스
+  backend:
+    build: ./backend
+    container_name: inventory-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_NAME=inventory_system
+      - DB_USERNAME=inventory
+      - DB_PASSWORD=inventory123
+    depends_on:
+      - mariadb
+    networks:
+      - inventory-network
+
+  # 토큰 관리 서비스
+  token-service:
+    build: ./token-management-service
+    container_name: inventory-token-service
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_NAME=token_management_db
+      - DB_USERNAME=inventory
+      - DB_PASSWORD=inventory123
+    depends_on:
+      - mariadb
+    networks:
+      - inventory-network
+
+  # 등록 서비스
+  registration-service:
+    build: ./registration-service
+    container_name: inventory-registration-service
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_NAME=registration_db
+      - DB_USERNAME=inventory
+      - DB_PASSWORD=inventory123
+    depends_on:
+      - mariadb
+    networks:
+      - inventory-network
+
+  # 프론트엔드 서비스
+  frontend:
+    build: ./frontend
+    container_name: inventory-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8080
+      - REACT_APP_TOKEN_SERVICE_URL=http://localhost:8081
+      - REACT_APP_REGISTRATION_SERVICE_URL=http://localhost:8082
+    depends_on:
+      - backend
+    networks:
+      - inventory-network
 
 volumes:
   mariadb_data:
+
+networks:
+  inventory-network:
+    driver: bridge

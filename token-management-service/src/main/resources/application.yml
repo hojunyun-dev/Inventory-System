@@ -41,6 +41,12 @@ oauth:
     client-secret: ${NAVER_CLIENT_SECRET:}
     token-url: https://nid.naver.com/oauth2.0/token
     scope: commerce
+    api-base-url: https://api.commerce.naver.com
+    endpoints:
+      products: /products
+      orders: /orders
+      inquiries: /inquiries
+      settlements: /settlements
     
   cafe24:
     client-id: ${CAFE24_CLIENT_ID:}

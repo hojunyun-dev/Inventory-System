@@ -23,12 +23,14 @@ public class DataSyncService {
     /**
      * 토큰 관리 서비스와 데이터 동기화
      */
+    @SuppressWarnings("unchecked")
     public Mono<Map<String, Object>> syncTokenData(String platform) {
         return webClientBuilder.build()
                 .get()
                 .uri(TOKEN_SERVICE_URL + "/api/tokens/{platform}", platform)
                 .retrieve()
                 .bodyToMono(Map.class)
+                .map(result -> (Map<String, Object>) result)
                 .doOnSuccess(result -> {
                     System.out.println("토큰 데이터 동기화 완료: " + platform + " - " + LocalDateTime.now());
                 })
@@ -40,12 +42,14 @@ public class DataSyncService {
     /**
      * 등록 서비스와 데이터 동기화
      */
+    @SuppressWarnings("unchecked")
     public Mono<Map<String, Object>> syncRegistrationData(String productId) {
         return webClientBuilder.build()
                 .get()
                 .uri(REGISTRATION_SERVICE_URL + "/api/registrations/{productId}", productId)
                 .retrieve()
                 .bodyToMono(Map.class)
+                .map(result -> (Map<String, Object>) result)
                 .doOnSuccess(result -> {
                     System.out.println("등록 데이터 동기화 완료: " + productId + " - " + LocalDateTime.now());
                 })
