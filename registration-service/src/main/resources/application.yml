@@ -37,19 +37,23 @@ token-service:
     accounts: /api/accounts
 
 # OAuth 2.0 Configuration
-  oauth:
-    naver:
-      api-base-url: https://api.commerce.naver.com
-      client-id: ${NAVER_CLIENT_ID:}
-      client-secret: ${NAVER_CLIENT_SECRET:}
-    cafe24:
-      api-base-url: https://your-mall.cafe24api.com/api/v2/admin
-      client-id: ${CAFE24_CLIENT_ID:}
-      client-secret: ${CAFE24_CLIENT_SECRET:}
-      mall-id: ${CAFE24_MALL_ID:}
-    coupang:
-      api-base-url: https://api-gateway.coupang.com/v2/providers/openapi/apis/api/v1
-      api-key: ${COUPANG_API_KEY:}
+oauth:
+  naver:
+    api-base-url: https://api.commerce.naver.com
+    client-id: ${NAVER_CLIENT_ID:test-client-id}
+    client-secret: ${NAVER_CLIENT_SECRET:test-client-secret}
+    authorize-url: https://nid.naver.com/oauth2.0/authorize
+    token-url: https://nid.naver.com/oauth2.0/token
+    user-info-url: https://openapi.naver.com/v1/nid/me
+    redirect-uri: ${NAVER_REDIRECT_URI:http://localhost:8082/api/oauth/naver/callback}
+  cafe24:
+    api-base-url: https://your-mall.cafe24api.com/api/v2/admin
+    client-id: ${CAFE24_CLIENT_ID:test-client-id}
+    client-secret: ${CAFE24_CLIENT_SECRET:test-client-secret}
+    mall-id: ${CAFE24_MALL_ID:test-mall-id}
+  coupang:
+    api-base-url: https://api-gateway.coupang.com/v2/providers/openapi/apis/api/v1
+    api-key: ${COUPANG_API_KEY:}
 
 # Platform-specific configurations
 platforms:
@@ -61,27 +65,36 @@ platforms:
       orders: /orders
       inquiries: /inquiries
       settlements: /settlements
-        cafe24:
-          api-base-url: https://your-mall.cafe24api.com/api/v2/admin
-          endpoints:
-            products: /products
-            orders: /orders
-            customers: /customers
-            boards: /boards
-            categories: /categories
+  bunjang:
+    base-url: https://m.bunjang.co.kr
+    login-url: https://m.bunjang.co.kr/login
+    register-url: https://m.bunjang.co.kr/products/new
+    endpoints:
+      login: /login
+      products: /products
+      register: /products/new
+    
+  cafe24:
+    api-base-url: https://your-mall.cafe24api.com/api/v2/admin
+    endpoints:
+      products: /products
+      orders: /orders
+      customers: /customers
+      boards: /boards
+      categories: /categories
   coupang:
     api-base-url: https://api-gateway.coupang.com/v2/providers/openapi/apis/api/v1
     endpoints:
       products: /marketplace/seller-products
       orders: /ordersheets
       settlements: /settlements
-  bunjang:
-    base-url: https://m.bunjang.co.kr
+  danggeun:
+    base-url: https://www.danggeunmarket.com
     endpoints:
       login: /login
       products: /products
-  danggeun:
-    base-url: https://www.danggeunmarket.com
+  junggonara:
+    base-url: https://cafe.naver.com/joonggonara
     endpoints:
       login: /login
       products: /products
@@ -89,12 +102,22 @@ platforms:
 # Web automation settings
 automation:
   browser:
-    headless: true
+    headless: false
     timeout: 30000
     window-size: "1920,1080"
+    remote-url: ""  # Docker 환경에서 사용할 원격 WebDriver URL
   retry:
     max-attempts: 3
-    delay: 1000
+    delay: 2000
+  screenshot:
+    enabled: true
+    path: /tmp/screenshots
+  # 테스트용 계정 정보 (환경변수로 설정 권장)
+  # 실제 계정 정보는 .env.local 파일에 설정하세요
+  test-accounts:
+    naver:
+      username: ${NAVER_TEST_USERNAME:}
+      password: ${NAVER_TEST_PASSWORD:}
 
 logging:
   level:

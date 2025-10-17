@@ -19,13 +19,13 @@ public class Cafe24Service {
 
     private final WebClient.Builder webClientBuilder;
 
-    @Value("${oauth.cafe24.api-base-url}")
+    @Value("${platforms.cafe24.api-base-url}")
     private String cafe24ApiBaseUrl;
-    @Value("${oauth.cafe24.mall-id}")
+    @Value("${oauth.cafe24.mall-id:default-mall-id}")
     private String mallId;
-    @Value("${oauth.cafe24.client-id}")
+    @Value("${oauth.cafe24.client-id:test-client-id}")
     private String clientId;
-    @Value("${oauth.cafe24.client-secret}")
+    @Value("${oauth.cafe24.client-secret:test-client-secret}")
     private String clientSecret;
     @Value("${platforms.cafe24.endpoints.products}")
     private String productsEndpoint;
@@ -47,7 +47,7 @@ public class Cafe24Service {
         return webClientBuilder.build()
                 .post()
                 .uri(cafe24ApiBaseUrl + productsEndpoint)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(productData)
                 .retrieve()
@@ -70,7 +70,7 @@ public class Cafe24Service {
         return webClientBuilder.build()
                 .put()
                 .uri(cafe24ApiBaseUrl + productsEndpoint + "/" + productId)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .bodyValue(productData)
                 .retrieve()
@@ -93,7 +93,7 @@ public class Cafe24Service {
         return webClientBuilder.build()
                 .delete()
                 .uri(cafe24ApiBaseUrl + productsEndpoint + "/" + productId)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .retrieve()
                 .bodyToMono(Map.class)
                 .map(result -> (Map<String, Object>) result)
@@ -114,7 +114,7 @@ public class Cafe24Service {
         return webClientBuilder.build()
                 .get()
                 .uri(cafe24ApiBaseUrl + productsEndpoint + "/" + productId)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .retrieve()
                 .bodyToMono(Map.class)
                 .map(result -> (Map<String, Object>) result)
@@ -139,7 +139,7 @@ public class Cafe24Service {
                     queryParams.forEach(uriBuilder::queryParam);
                     return uriBuilder.build();
                 })
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .retrieve()
                 .bodyToMono(Map.class)
                 .map(result -> (Map<String, Object>) result)
@@ -164,7 +164,7 @@ public class Cafe24Service {
                     queryParams.forEach(uriBuilder::queryParam);
                     return uriBuilder.build();
                 })
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .retrieve()
                 .bodyToMono(Map.class)
                 .map(result -> (Map<String, Object>) result)
@@ -189,7 +189,7 @@ public class Cafe24Service {
                     queryParams.forEach(uriBuilder::queryParam);
                     return uriBuilder.build();
                 })
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .retrieve()
                 .bodyToMono(Map.class)
                 .map(result -> (Map<String, Object>) result)
@@ -214,7 +214,7 @@ public class Cafe24Service {
                     queryParams.forEach(uriBuilder::queryParam);
                     return uriBuilder.build();
                 })
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .retrieve()
                 .bodyToMono(Map.class)
                 .map(result -> (Map<String, Object>) result)
@@ -239,7 +239,7 @@ public class Cafe24Service {
                     queryParams.forEach(uriBuilder::queryParam);
                     return uriBuilder.build();
                 })
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .header(HttpHeaders.AUTHORIZATION, accessToken)
                 .retrieve()
                 .bodyToMono(Map.class)
                 .map(result -> (Map<String, Object>) result)

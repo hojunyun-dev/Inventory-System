@@ -18,9 +18,9 @@ public class CoupangService {
 
     private final WebClient.Builder webClientBuilder;
 
-    @Value("${oauth.coupang.api-base-url}")
+    @Value("${platforms.coupang.api-base-url}")
     private String coupangApiBaseUrl;
-    @Value("${oauth.coupang.api-key}")
+    @Value("${oauth.coupang.api-key:test-api-key}")
     private String apiKey;
     @Value("${platforms.coupang.endpoints.products}")
     private String productsEndpoint;

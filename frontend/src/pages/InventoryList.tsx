@@ -72,9 +72,11 @@ const InventoryList: React.FC = () => {
 
     // 검색어 필터링
     if (searchTerm) {
-      filtered = filtered.filter(inventory =>
+      filtered = filtered.filter(inventory => 
+        inventory.productName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         inventory.product?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        inventory.location.toLowerCase().includes(searchTerm.toLowerCase())
+        inventory.warehouseLocation?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        inventory.location?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -260,20 +262,22 @@ const InventoryList: React.FC = () => {
               filteredInventories.map((inventory) => (
                 <TableRow key={inventory.id}>
                   <TableCell>{inventory.id}</TableCell>
-                  <TableCell>{inventory.product?.name || '-'}</TableCell>
-                  <TableCell>{inventory.location}</TableCell>
+                  <TableCell>{inventory.productName || inventory.product?.name || '-'}</TableCell>
+                  <TableCell>{inventory.warehouseLocation || inventory.location || '-'}</TableCell>
                   <TableCell>{inventory.quantity?.toLocaleString()}</TableCell>
                   <TableCell>{inventory.minStockLevel?.toLocaleString() || '-'}</TableCell>
                   <TableCell>{inventory.maxStockLevel?.toLocaleString() || '-'}</TableCell>
                   <TableCell>
                     <Chip 
-                      label={getStatusLabel(inventory.status)} 
-                      color={getStatusColor(inventory.status)} 
+                      label={getStatusLabel(inventory.status || InventoryStatus.IN_STOCK)} 
+                      color={getStatusColor(inventory.status || InventoryStatus.IN_STOCK)} 
                       size="small" 
                     />
                   </TableCell>
                   <TableCell>
-                    {inventory.lastUpdated 
+                    {inventory.updatedAt 
+                      ? new Date(inventory.updatedAt).toLocaleDateString()
+                      : inventory.lastUpdated 
                       ? new Date(inventory.lastUpdated).toLocaleDateString()
                       : '-'
                     }
