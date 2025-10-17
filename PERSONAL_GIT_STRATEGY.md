@@ -31,6 +31,21 @@ main (안정적인 메인 브랜치 - GitHub에 배포)
   - 기능 개발, 버그 수정, 리팩토링
   - 일상적인 커밋과 푸시
 
+### 3. 브랜치 명명 규칙
+```
+main                    # 메인 브랜치 (배포용)
+develop                 # 개발 브랜치 (일상 작업용)
+feature/기능명          # 특정 기능 개발용 (예: feature/user-auth)
+bugfix/버그명           # 버그 수정용 (예: bugfix/login-error)
+hotfix/긴급수정명       # 긴급 수정용 (예: hotfix/security-patch)
+release/버전명          # 릴리스 준비용 (예: release/v1.0.0)
+```
+
+**주의사항**:
+- `develop`은 메인 개발 브랜치이므로 `feature/develop`으로 명명하지 않음
+- `feature/` 접두사는 특정 기능 개발용 브랜치에만 사용
+- 브랜치명은 역할과 목적을 명확히 반영해야 함
+
 ## 🔧 Cursor IDE Git 워크플로우
 
 ### 방법 1: Cursor GUI 사용 (권장)
