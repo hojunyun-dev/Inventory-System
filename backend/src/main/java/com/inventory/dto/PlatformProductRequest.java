@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Positive;
 
 @Data
 public class PlatformProductRequest {
+    private String productId; // 내부 상품 ID (registration-service 연동용)
     @NotBlank(message = "Product name is required")
     private String productName;
     

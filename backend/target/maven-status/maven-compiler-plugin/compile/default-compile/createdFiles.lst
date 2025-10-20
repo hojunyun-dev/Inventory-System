@@ -13,13 +13,17 @@ com/inventory/entity/Order.class
 com/inventory/controller/ProductController.class
 com/inventory/controller/SerializedInventoryController.class
 com/inventory/controller/InventoryController.class
+com/inventory/entity/ChannelProduct$Status.class
 com/inventory/entity/VehicleCompatibility.class
+com/inventory/dto/InventoryDto.class
 com/inventory/entity/Inventory.class
 com/inventory/controller/MessageController.class
 com/inventory/dto/PlatformProductResponse$PlatformProductResponseBuilder.class
 com/inventory/repository/CategoryRepository.class
 com/inventory/entity/PartCondition.class
 com/inventory/controller/CatalogController.class
+com/inventory/controller/ChannelProductController.class
+com/inventory/dto/ChannelProductDto.class
 com/inventory/controller/InventoryController$InventoryRequest.class
 com/inventory/InventorySystemApplication.class
 com/inventory/dto/PlatformProductRequest.class
@@ -28,7 +32,6 @@ com/inventory/dto/TokenResponse.class
 com/inventory/repository/OrderRepository.class
 com/inventory/service/ProductService.class
 com/inventory/dto/RegistrationResponse$RegistrationResponseBuilder.class
-com/inventory/config/WebConfig.class
 com/inventory/repository/OrderItemRepository.class
 com/inventory/controller/VehicleCompatibilityController.class
 com/inventory/config/SecurityConfig.class
@@ -44,6 +47,10 @@ com/inventory/dto/RegistrationRequest$RegistrationRequestBuilder.class
 com/inventory/dto/RegistrationResponse.class
 com/inventory/entity/SerializedInventory.class
 com/inventory/service/DataSyncService.class
+com/inventory/repository/ChannelProductRepository.class
+com/inventory/controller/ChannelProductController$ChannelProductRequest.class
 com/inventory/controller/PlatformIntegrationController.class
 com/inventory/dto/PlatformProductResponse.class
+com/inventory/service/TokenManagementService.class
 com/inventory/config/InventoryDataInitializer.class
+com/inventory/entity/ChannelProduct.class

@@ -13,7 +13,6 @@ import java.util.HashMap;
 @RestController
 @RequestMapping("/api/catalog")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class CatalogController {
 
     private final ProductRepository productRepository;

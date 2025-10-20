@@ -16,7 +16,6 @@ import java.util.List;
 @RequestMapping("/api/platform")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class PlatformIntegrationController {
 
     private final PlatformIntegrationService platformIntegrationService;

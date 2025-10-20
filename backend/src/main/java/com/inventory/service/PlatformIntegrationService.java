@@ -231,6 +231,7 @@ public class PlatformIntegrationService {
     private RegistrationRequest convertToRegistrationRequest(PlatformProductRequest request, String platform) {
         return RegistrationRequest.builder()
                 .platform(platform)
+                .productId(request.getProductId())
                 .productName(request.getProductName())
                 .productDescription(request.getDescription())
                 .price(request.getPrice())

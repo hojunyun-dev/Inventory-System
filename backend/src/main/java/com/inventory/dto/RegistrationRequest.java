@@ -11,6 +11,8 @@ import java.util.Map;
 @Data
 @Builder
 public class RegistrationRequest {
+    // 내부 -> registration-service 연동 시 필요한 원본 상품 식별자
+    private String productId;
     @NotBlank(message = "Platform is required")
     private String platform;
     
