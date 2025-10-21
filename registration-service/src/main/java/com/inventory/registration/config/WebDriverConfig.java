@@ -6,7 +6,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -20,22 +20,17 @@ import java.time.Duration;
 @Slf4j
 public class WebDriverConfig {
 
-    @Value("${automation.browser.headless:true}")
-    private boolean headless;
+    @Autowired
+    private AutomationProperties automationProperties;
 
-    @Value("${automation.browser.timeout:30000}")
-    private long timeout;
-
-    @Value("${automation.browser.window-size:1920,1080}")
-    private String windowSize;
-
-    @Value("${automation.browser.remote-url:}")
-    private String remoteUrl;
-
+    @org.springframework.context.annotation.Lazy
     @Bean
     @Primary
+    @org.springframework.context.annotation.Scope("prototype")
     public WebDriver webDriver() {
-        log.info("Initializing WebDriver with headless={}, timeout={}ms", headless, timeout);
+        log.info("Initializing WebDriver with headless={}, timeout={}ms", 
+            automationProperties.getBrowser().isHeadless(), 
+            automationProperties.getBrowser().getTimeout());
         
         ChromeOptions options = new ChromeOptions();
         
@@ -46,20 +41,45 @@ public class WebDriverConfig {
         options.addArguments("--disable-extensions");
         options.addArguments("--disable-plugins");
         options.addArguments("--disable-images"); // 이미지 로딩 비활성화로 속도 향상
-        // options.addArguments("--disable-javascript"); // 번개장터는 JavaScript 필요하므로 비활성화
+        options.addArguments("--no-first-run");
+        options.addArguments("--no-default-browser-check");
+        options.addArguments("--lang=ko-KR");
+        // 안정성 저하 가능 플래그 제거 (충돌 방지)
+        // options.addArguments("--disable-web-security");
+        // options.addArguments("--allow-running-insecure-content");
+        // options.addArguments("--disable-features=VizDisplayCompositor");
+        // options.addArguments("--remote-debugging-port=0");
+        // options.addArguments("--disable-background-timer-throttling");
+        // options.addArguments("--disable-backgrounding-occluded-windows");
+        // options.addArguments("--disable-renderer-backgrounding");
+        // options.addArguments("--disable-features=TranslateUI");
+        // options.addArguments("--disable-ipc-flooding-protection");
         options.addArguments("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
         
+        // 봇 탐지 우회 옵션 (팀원 코드에서 가져온 개선사항)
+        options.setExperimentalOption("excludeSwitches", java.util.Collections.singletonList("enable-automation"));
+        options.setExperimentalOption("useAutomationExtension", false);
+        options.addArguments("--disable-blink-features=AutomationControlled");
+        
         // 창 크기 설정
+        String windowSize = automationProperties.getBrowser().getWindowSize();
         if (windowSize != null && !windowSize.isEmpty()) {
             options.addArguments("--window-size=" + windowSize);
         }
         
+        // 계정별 프로필 디렉토리 설정 (세션 재사용을 위해 - 고정 디렉토리)
+        String profileBase = System.getProperty("automation.profile.base", System.getProperty("user.home") + "/.selenium-profiles");
+        String profileDir = profileBase + "/bunjang-session-" + System.currentTimeMillis(); // 고유한 프로필로 충돌 방지
+        options.addArguments("--user-data-dir=" + profileDir);
+        options.addArguments("--profile-directory=Default");
+        
         // 헤드리스 모드 설정
-        if (headless) {
+        if (automationProperties.getBrowser().isHeadless()) {
             options.addArguments("--headless");
         }
         
         // 원격 WebDriver 사용 여부
+        String remoteUrl = automationProperties.getBrowser().getRemoteUrl();
         if (remoteUrl != null && !remoteUrl.isEmpty()) {
             try {
                 log.info("Using remote WebDriver at: {}", remoteUrl);
@@ -74,6 +94,7 @@ public class WebDriverConfig {
             ChromeDriver driver = new ChromeDriver(options);
             
             // 타임아웃 설정
+            long timeout = automationProperties.getBrowser().getTimeout();
             driver.manage().timeouts().implicitlyWait(Duration.ofMillis(timeout));
             driver.manage().timeouts().pageLoadTimeout(Duration.ofMillis(timeout));
             

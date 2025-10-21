@@ -23,6 +23,7 @@ export interface Product {
   dimensions?: string;
   isSerialized?: boolean;
   imageUrl?: string;
+  imageAltText?: string;
   technicalDrawingUrl?: string;
   notes?: string;
   isActive?: boolean;
@@ -313,6 +314,8 @@ export interface ChannelProduct {
   channelTitle?: string;
   channelDescription?: string;
   displayOrder?: number;
+  productImageUrl?: string;
+  productImageAltText?: string;
   isFeatured?: boolean;
   notes?: string;
   createdAt?: string;

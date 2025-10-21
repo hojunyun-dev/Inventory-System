@@ -246,13 +246,6 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
           </List>
         </Collapse>
 
-          {/* API 테스트 */}
-          <ListItem disablePadding>
-            <ListItemButton onClick={() => handleNavigation('/api-test')} selected={location.pathname === '/api-test'}>
-              <ListItemIcon><ApiIcon /></ListItemIcon>
-              <ListItemText primary="🧪 API 테스트" />
-            </ListItemButton>
-          </ListItem>
 
 
           {/* 고급 기능 */}

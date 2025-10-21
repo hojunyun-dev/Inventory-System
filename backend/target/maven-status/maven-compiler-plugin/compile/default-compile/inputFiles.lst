@@ -18,6 +18,7 @@
 /home/code/바탕화면/Inventory-System/backend/src/main/java/com/inventory/service/TokenManagementService.java
 /home/code/바탕화면/Inventory-System/backend/src/main/java/com/inventory/repository/MessageRepository.java
 /home/code/바탕화면/Inventory-System/backend/src/main/java/com/inventory/entity/ChannelProduct.java
+/home/code/바탕화면/Inventory-System/backend/src/main/java/com/inventory/controller/AutomationProxyController.java
 /home/code/바탕화면/Inventory-System/backend/src/main/java/com/inventory/service/RegistrationService.java
 /home/code/바탕화면/Inventory-System/backend/src/main/java/com/inventory/repository/InventoryRepository.java
 /home/code/바탕화면/Inventory-System/backend/src/main/java/com/inventory/repository/VehicleCompatibilityRepository.java
@@ -42,7 +43,6 @@
 /home/code/바탕화면/Inventory-System/backend/src/main/java/com/inventory/entity/OrderItem.java
 /home/code/바탕화면/Inventory-System/backend/src/main/java/com/inventory/service/PlatformIntegrationService.java
 /home/code/바탕화면/Inventory-System/backend/src/main/java/com/inventory/controller/OrderController.java
-/home/code/바탕화면/Inventory-System/backend/src/main/java/com/inventory/controller/TestController.java
 /home/code/바탕화면/Inventory-System/backend/src/main/java/com/inventory/config/CatalogDataInitializer.java
 /home/code/바탕화면/Inventory-System/backend/src/main/java/com/inventory/dto/InventoryDto.java
 /home/code/바탕화면/Inventory-System/backend/src/main/java/com/inventory/entity/PartType.java

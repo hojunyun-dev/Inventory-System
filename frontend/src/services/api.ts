@@ -171,4 +171,27 @@ export const dashboardApi = {
   getUnreadNotificationCount: () => api.get<number>('/dashboard/notifications/unread-count'),
 };
 
+// 번개장터 API
+export const bunjangApi = {
+  checkLoginStatus: () => api.get('/automation/bunjang/session/status'),
+  openForManualLogin: () => api.post('/automation/bunjang/session/open'),
+  openWithProduct: (productData: {
+    productId: number;
+    productName: string;
+    description: string;
+    price: number;
+    quantity: number;
+    category: string;
+  }) => api.post('/automation/bunjang/session/open-with-product', productData),
+  closeSession: () => api.post('/automation/bunjang/session/close'),
+  registerProduct: (productData: {
+    productId: number;
+    productName: string;
+    description: string;
+    price: number;
+    quantity: number;
+    category: string;
+  }) => api.post('/automation/bunjang/register', productData)
+};
+
 export default api;

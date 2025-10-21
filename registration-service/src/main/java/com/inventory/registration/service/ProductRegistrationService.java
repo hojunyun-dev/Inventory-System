@@ -84,14 +84,20 @@ public class ProductRegistrationService {
     private ProductRegistration routeToPlatformService(ProductRegistrationRequest request) {
         String platform = request.getPlatform().toLowerCase();
         
-        return switch (platform) {
-            case "naver" -> naverService.registerProduct(request);
-            case "cafe24" -> cafe24Service.registerProduct(request);
-            case "coupang" -> coupangService.registerProduct(request);
-            case "bunjang" -> bunjangService.registerProduct(request);
-            case "danggeun" -> danggeunService.registerProduct(request);
-            default -> throw new IllegalArgumentException("Unsupported platform: " + platform);
-        };
+        switch (platform) {
+            case "naver":
+                return naverService.registerProduct(request);
+            case "cafe24":
+                return cafe24Service.registerProduct(request);
+            case "coupang":
+                return coupangService.registerProduct(request);
+            case "bunjang":
+                return bunjangService.registerProduct(request);
+            case "danggeun":
+                return danggeunService.registerProduct(request);
+            default:
+                throw new IllegalArgumentException("Unsupported platform: " + platform);
+        }
     }
     
     public List<ProductRegistrationResponse> getRegistrationsByPlatform(String platform) {

@@ -66,9 +66,9 @@ platforms:
       inquiries: /inquiries
       settlements: /settlements
   bunjang:
-    base-url: https://m.bunjang.co.kr
-    login-url: https://m.bunjang.co.kr/login
-    register-url: https://m.bunjang.co.kr/products/new
+    base-url: https://www.bunjang.co.kr
+    login-url: https://www.bunjang.co.kr/login
+    register-url: https://www.bunjang.co.kr/products/new
     endpoints:
       login: /login
       products: /products

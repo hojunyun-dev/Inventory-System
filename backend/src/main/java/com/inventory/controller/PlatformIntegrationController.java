@@ -34,7 +34,13 @@ public class PlatformIntegrationController {
                 .map(ResponseEntity::ok)
                 .onErrorResume(e -> {
                     log.error("Failed to register product to platform {}: {}", platform, e.getMessage());
-                    return Mono.just(ResponseEntity.badRequest().build());
+                    PlatformProductResponse errorResponse = PlatformProductResponse.builder()
+                        .platform(platform)
+                        .status("ERROR")
+                        .message("등록 실패")
+                        .errorMessage(e.getMessage() != null ? e.getMessage() : "요청이 올바르지 않습니다.")
+                        .build();
+                    return Mono.just(ResponseEntity.badRequest().body(errorResponse));
                 });
     }
 

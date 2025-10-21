@@ -53,3 +53,4 @@ public class CorsBeanDumper implements ApplicationRunner {
         System.out.println("=== CORS Bean Dump End ===");
     }
 }
+

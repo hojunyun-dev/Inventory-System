@@ -50,3 +50,4 @@ public class ChannelProduct {
         return allocatedQuantity - soldQuantity;
     }
 }
+

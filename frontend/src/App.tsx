@@ -26,8 +26,6 @@ import Cafe24Integration from './pages/Cafe24Integration';
 import NaverIntegration from './pages/NaverIntegration';
 import CoupangIntegration from './pages/CoupangIntegration';
 import GpartsIntegration from './pages/GpartsIntegration';
-import APITestPage from './pages/APITestPage';
-import CatalogTest from './pages/CatalogTest';
 
 const theme = createTheme({
   palette: {
@@ -114,11 +112,6 @@ const AppContent: React.FC = () => {
                     <Route path="/coupang-integration" element={<ProtectedRoute><CoupangIntegration /></ProtectedRoute>} />
                     <Route path="/gparts-integration" element={<ProtectedRoute><GpartsIntegration /></ProtectedRoute>} />
                     
-                    {/* API 테스트 라우트 */}
-                    <Route path="/api-test" element={<ProtectedRoute><APITestPage /></ProtectedRoute>} />
-                    
-                    {/* 카탈로그 테스트 라우트 */}
-                    <Route path="/catalog-test" element={<ProtectedRoute><CatalogTest /></ProtectedRoute>} />
           </Routes>
         </Box>
       </Box>

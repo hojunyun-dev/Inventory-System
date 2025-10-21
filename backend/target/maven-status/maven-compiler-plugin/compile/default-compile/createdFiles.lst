@@ -1,5 +1,6 @@
 com/inventory/repository/ProductRepository.class
 com/inventory/controller/DataSyncController.class
+com/inventory/config/CorsBeanDumper.class
 com/inventory/controller/OrderController.class
 com/inventory/entity/PartType.class
 com/inventory/repository/MessageRepository.class
@@ -16,6 +17,7 @@ com/inventory/controller/InventoryController.class
 com/inventory/entity/ChannelProduct$Status.class
 com/inventory/entity/VehicleCompatibility.class
 com/inventory/dto/InventoryDto.class
+com/inventory/controller/AutomationProxyController.class
 com/inventory/entity/Inventory.class
 com/inventory/controller/MessageController.class
 com/inventory/dto/PlatformProductResponse$PlatformProductResponseBuilder.class
@@ -43,10 +45,13 @@ com/inventory/entity/OrderItem.class
 com/inventory/dto/ProductDto.class
 com/inventory/dto/CategoryDto.class
 com/inventory/entity/Product.class
+com/inventory/controller/CorsDebugController.class
 com/inventory/dto/RegistrationRequest$RegistrationRequestBuilder.class
 com/inventory/dto/RegistrationResponse.class
 com/inventory/entity/SerializedInventory.class
+com/inventory/filter/CorsDebugFilter.class
 com/inventory/service/DataSyncService.class
+com/inventory/config/CorsGuard.class
 com/inventory/repository/ChannelProductRepository.class
 com/inventory/controller/ChannelProductController$ChannelProductRequest.class
 com/inventory/controller/PlatformIntegrationController.class

@@ -7,7 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import jakarta.annotation.PostConstruct;
@@ -25,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 public abstract class BaseAutomationService {
     
     @Autowired
+    protected ObjectFactory<WebDriver> webDriverFactory;
     protected WebDriver webDriver;
     
     @Value("${automation.retry.max-attempts:3}")
@@ -43,7 +48,6 @@ public abstract class BaseAutomationService {
     
     @PostConstruct
     public void init() {
-        this.wait = new WebDriverWait(webDriver, Duration.ofSeconds(PlatformConstants.DEFAULT_TIMEOUT / 1000));
         setupScreenshotDirectory();
         log.info("BaseAutomationService initialized for platform: {}", getPlatformName());
     }
@@ -69,6 +73,7 @@ public abstract class BaseAutomationService {
     protected boolean login(String username, String password) {
         try {
             log.info("Starting login process for platform: {}", getPlatformName());
+            ensureDriver();
             webDriver.get(getLoginUrl());
             
             // 로그인 폼 입력
@@ -133,6 +138,7 @@ public abstract class BaseAutomationService {
     }
     
     protected void navigateToProductRegistration() {
+        ensureDriver();
         webDriver.get(getRegisterUrl());
         waitForPageLoad();
     }
@@ -144,6 +150,7 @@ public abstract class BaseAutomationService {
     // 유틸리티 메서드들
     protected void waitForPageLoad() {
         try {
+            ensureDriver();
             wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")));
             Thread.sleep(1000); // 추가 대기
         } catch (Exception e) {
@@ -255,6 +262,36 @@ public abstract class BaseAutomationService {
                     throw new RuntimeException("Retry interrupted", ie);
                 }
             }
+        }
+    }
+
+    protected void ensureDriver() {
+        log.info("ensureDriver() 진입 - 현재 webDriver: {}", (this.webDriver == null ? "null" : "present"));
+        if (this.webDriver == null) {
+            log.info("Creating WebDriver instance lazily for platform: {}", getPlatformName());
+            WebDriver created = null;
+            try {
+                created = webDriverFactory.getObject();
+            } catch (Exception e) {
+                log.warn("Failed to create WebDriver from factory, falling back to direct ChromeDriver: {}", e.getMessage());
+                try {
+                    WebDriverManager.chromedriver().setup();
+                    ChromeOptions options = new ChromeOptions();
+                    options.addArguments("--no-sandbox");
+                    options.addArguments("--disable-dev-shm-usage");
+                    options.addArguments("--window-size=1920,1080");
+                    created = new ChromeDriver(options);
+                } catch (Exception e2) {
+                    log.error("Fallback ChromeDriver creation failed: {}", e2.getMessage());
+                    throw e2;
+                }
+            }
+            if (created == null) {
+                throw new IllegalStateException("WebDriver factory returned null");
+            }
+            this.webDriver = created;
+            this.wait = new WebDriverWait(webDriver, Duration.ofSeconds(PlatformConstants.DEFAULT_TIMEOUT / 1000));
+            log.info("ensureDriver() 완료 - webDriver 생성됨");
         }
     }
 }

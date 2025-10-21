@@ -4,12 +4,12 @@ public class SelectorConstants {
     
             // 번개장터 셀렉터 - 실제 웹사이트 구조 기반
             public static class Bunjang {
-                    // 네이버 OAuth 로그인 관련 - 실제 웹사이트 구조 기반
-                    public static final String NAVER_LOGIN_BUTTON = "button:contains('네이버로 이용하기')";
-                    public static final String NAVER_ID_INPUT = "input[type='text']"; // 네이버 로그인 페이지의 아이디 입력 필드
-                    public static final String NAVER_PASSWORD_INPUT = "input[type='password']"; // 네이버 로그인 페이지의 비밀번호 입력 필드
-                    public static final String NAVER_LOGIN_SUBMIT = "button:contains('로그인')";
-                    public static final String LOGIN_SUCCESS_INDICATOR = ".header__user, .user-info, [data-testid='user-menu']";
+                    // 네이버 OAuth 로그인 관련 - 안정적인 셀렉터 우선 사용
+                    public static final String NAVER_LOGIN_BUTTON = "//button[contains(text(), '네이버로 이용하기')] | //a[contains(text(), '네이버')] | //button[contains(@class, 'naver')]";
+                    public static final String NAVER_ID_INPUT = "#id, input#id, input[name='id'], input[name='loginId'], input[placeholder='아이디'], input[placeholder='아이디 또는 전화번호'], input[type='text'][name*='id'], input[id*='id']";
+                    public static final String NAVER_PASSWORD_INPUT = "#pw, input#pw, input[name='pw'], input[name='password'], input[placeholder='비밀번호'], input[type='password'], input[name*='password']";
+                    public static final String NAVER_LOGIN_SUBMIT = "//button[contains(text(), '로그인')] | //input[@type='submit'] | button[type='submit']";
+                    public static final String LOGIN_SUCCESS_INDICATOR = ".header__user, .user-info, [data-testid='user-menu'], [aria-label*='사용자'], [data-testid*='user']";
         
         // 상품 등록 관련 - 실제 번개장터 구조
         public static final String PRODUCT_NAME_INPUT = "input[placeholder='상품명을 입력해 주세요.']";
@@ -19,6 +19,11 @@ public class SelectorConstants {
         public static final String PRODUCT_QUANTITY_INPUT = "input[placeholder='숫자만 입력해 주세요.']";
         public static final String PRODUCT_IMAGE_UPLOAD = "input[type='file']";
         
+        // 데스크탑 홈 상단 로그인/회원가입 버튼
+        public static final String HOME_LOGIN_BUTTON = "//button[contains(text(), '로그인/회원가입')] | //a[contains(text(),'로그인/회원가입')]";
+        // 로그인 팝업 컨테이너 타이틀
+        public static final String LOGIN_POPUP_CONTAINER = "//div[contains(., '번개장터로 중고거래 시작하기')]";
+
         // 카테고리 버튼들 (실제 번개장터 카테고리)
         public static final String CATEGORY_WOMEN_CLOTHING = "button:contains('여성의류')";
         public static final String CATEGORY_MEN_CLOTHING = "button:contains('남성의류')";
@@ -51,8 +56,6 @@ public class SelectorConstants {
         public static final String PRODUCT_CONDITION_USED = "input[value='USED']";
         
         // 추가 옵션
-        public static final String PRODUCT_TAG_INPUT = "input[placeholder='태그를 입력해 주세요. (최대 5개)']";
-        public static final String PRODUCT_QUANTITY_INPUT = "input[placeholder='숫자만 입력해 주세요.']";
         public static final String PRICE_NEGOTIATION_CHECKBOX = "input[name='price_negotiation']";
         
         // 배송 관련
@@ -62,9 +65,6 @@ public class SelectorConstants {
         // 직거래 관련
         public static final String DIRECT_TRADE_YES = "span:contains('가능')";
         public static final String DIRECT_TRADE_NO = "span:contains('불가')";
-        
-        // 이미지 업로드
-        public static final String PRODUCT_IMAGE_UPLOAD = "input[type='file']";
         
         // 버튼들
         public static final String SUBMIT_BUTTON = "button:contains('등록하기')";

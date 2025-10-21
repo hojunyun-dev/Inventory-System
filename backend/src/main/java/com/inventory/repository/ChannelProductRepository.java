@@ -11,3 +11,4 @@ public interface ChannelProductRepository extends JpaRepository<ChannelProduct, 
     List<ChannelProduct> findByChannel(String channel);
     List<ChannelProduct> findByProductId(Long productId);
 }
+

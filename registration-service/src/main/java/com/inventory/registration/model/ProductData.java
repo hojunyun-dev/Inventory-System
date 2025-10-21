@@ -1,55 +1,59 @@
 package com.inventory.registration.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ProductData {
-    
-    // 기본 상품 정보
     private String name;
     private String description;
-    private Integer price;
+    private Double price;
+    private Integer quantity;
     private String category;
-    private String condition; // 새상품, 중고, 거의새것 등
-    
-    // 이미지 정보
-    private List<String> imageUrls;
-    private List<String> imagePaths; // 로컬 파일 경로
-    
-    // 위치 및 배송 정보
-    private String location;
-    private String address;
-    private boolean deliveryAvailable;
-    private Integer deliveryFee;
-    
-    // 거래 정보
-    private String tradeMethod; // 직거래, 택배, 둘다
-    private String contactMethod; // 채팅, 전화 등
-    
-    // 플랫폼별 추가 정보
-    private String platform;
-    private String subCategory;
-    private List<String> tags;
     private String brand;
     private String model;
+    private String color;
+    private String size;
+    private String material;
+    private String origin;
+    private String warranty;
+    private String shippingInfo;
+    private String returnPolicy;
+    private List<String> images;
+    private Map<String, Object> customAttributes;
+    @Builder.Default
+    private Boolean priceNegotiation = false;
+    @Builder.Default
+    private Boolean directTrade = false;
+    private String condition; // NEW, USED, REFURBISHED
+    private String location;
+    private String tags;
+    private String platform; // 플랫폼 정보 추가
+    private String username; // 사용자명 (자동화용)
+    private String password; // 비밀번호 (자동화용)
     
-    // 자동화 로그인 정보 (보안상 실제 운영에서는 암호화 필요)
-    private String username;
-    private String password;
-    private String phoneNumber;
-    private String verificationCode;
+    // 누락된 메서드들 추가
+    public List<String> getImagePaths() {
+        return this.images;
+    }
     
-    // 메타 정보
-    private LocalDateTime createdAt;
-    private String source; // 재고관리시스템에서 온 데이터인지 식별
-    private String externalId; // 외부 시스템의 상품 ID
+    public void setImagePaths(List<String> imagePaths) {
+        this.images = imagePaths;
+    }
+    
+    public String getPlatform() {
+        return this.platform;
+    }
+    
+    public void setPlatform(String platform) {
+        this.platform = platform;
+    }
 }

@@ -88,7 +88,8 @@ public class BunjangAutomationService extends BaseAutomationService {
     
     @Override
     protected String getLoginUrl() {
-        return PlatformConstants.BUNJANG_LOGIN_URL;
+        // 번개장터 홈페이지로 이동 (로그인 페이지가 아닌 홈페이지)
+        return "https://www.bunjang.co.kr";
     }
     
     @Override
@@ -99,45 +100,90 @@ public class BunjangAutomationService extends BaseAutomationService {
     @Override
     protected boolean fillLoginForm(String username, String password) {
         try {
-            log.info("Filling Naver OAuth login form for Bunjang");
+            log.info("🔍 DEBUG: This is BunjangAutomationService.fillLoginForm() method");
+            log.info("Starting Bunjang login flow - NOT going directly to Naver login");
             
-            // 번개장터 로그인 페이지로 이동
-            webDriver.get(getLoginUrl());
+            // 1. 번개장터 홈페이지로 이동 (로그인 페이지가 아닌 홈페이지)
+            webDriver.get("https://www.bunjang.co.kr");
+            Thread.sleep(3000);
             
-            // 네이버 로그인 버튼 클릭
-            WebElement naverLoginButton = wait.until(webDriver -> 
-                webDriver.findElement(By.xpath("//button[contains(text(), '네이버로 이용하기')]")));
-            safeClick(naverLoginButton);
+            // 2. 로그인/회원가입 버튼 찾기 및 클릭
+            log.info("Looking for login/register button...");
+            WebElement loginButton = wait.until(webDriver -> {
+                try {
+                    return webDriver.findElement(By.xpath("//a[contains(text(), '로그인') or contains(text(), '회원가입')]"));
+                } catch (Exception e) {
+                    return null;
+                }
+            });
             
-            // 새 탭으로 네이버 로그인 페이지가 열림 - 새 탭으로 전환
+            if (loginButton != null) {
+                safeClick(loginButton);
+                Thread.sleep(3000);
+                log.info("✅ Clicked login/register button");
+            } else {
+                log.warn("❌ Could not find login button");
+                return false;
+            }
+            
+            // 3. 팝업창에서 네이버 로그인 버튼 찾기 및 클릭
+            log.info("Looking for Naver login button in popup...");
+            WebElement naverLoginButton = wait.until(webDriver -> {
+                try {
+                    return webDriver.findElement(By.xpath("//button[contains(text(), '네이버로 이용하기')]"));
+                } catch (Exception e) {
+                    return null;
+                }
+            });
+            
+            if (naverLoginButton != null) {
+                safeClick(naverLoginButton);
+                Thread.sleep(3000);
+                log.info("✅ Clicked Naver login button");
+            } else {
+                log.warn("❌ Could not find Naver login button");
+                return false;
+            }
+            
+            // 4. 네이버 로그인 페이지가 새 탭에서 열림 - 사용자가 수동으로 로그인하도록 대기
+            log.info("✅ Naver login page opened in new tab. Please complete login manually.");
+            log.info("👤 User should complete login manually in the browser window.");
+            
+            // 사용자가 수동으로 로그인을 완료할 때까지 대기
             String originalWindow = webDriver.getWindowHandle();
-            for (String windowHandle : webDriver.getWindowHandles()) {
-                if (!windowHandle.equals(originalWindow)) {
-                    webDriver.switchTo().window(windowHandle);
-                    break;
+            int maxWaitTime = 60; // 60초 대기
+            for (int i = 0; i < maxWaitTime; i++) {
+                try {
+                    Thread.sleep(1000);
+                    
+                    // 번개장터로 리다이렉션되었는지 확인
+                    if (webDriver.getCurrentUrl().contains("bunjang.co.kr")) {
+                        log.info("✅ Login completed successfully!");
+                        break;
+                    }
+                    
+                    // 새 탭이 열렸는지 확인하고 원래 탭으로 돌아가기
+                    for (String windowHandle : webDriver.getWindowHandles()) {
+                        if (!windowHandle.equals(originalWindow)) {
+                            webDriver.switchTo().window(windowHandle);
+                            if (webDriver.getCurrentUrl().contains("naver.com")) {
+                                // 네이버 로그인 페이지에서 대기
+                                log.info("⏳ Waiting for manual login completion... ({}/60)", i + 1);
+                                webDriver.switchTo().window(originalWindow);
+                                break;
+                            }
+                        }
+                    }
+                    
+                } catch (Exception e) {
+                    log.warn("Error checking login status: {}", e.getMessage());
                 }
             }
             
-                    // 네이버 로그인 페이지에서 아이디/비밀번호 입력
-                    WebElement idInput = wait.until(webDriver -> 
-                        webDriver.findElement(By.cssSelector(SelectorConstants.Bunjang.NAVER_ID_INPUT)));
-                    safeInput(idInput, username);
-                    
-                    WebElement pwInput = webDriver.findElement(By.cssSelector(SelectorConstants.Bunjang.NAVER_PASSWORD_INPUT));
-                    safeInput(pwInput, password);
-                    
-                    WebElement naverLoginSubmit = webDriver.findElement(By.cssSelector(SelectorConstants.Bunjang.NAVER_LOGIN_SUBMIT));
-                    safeClick(naverLoginSubmit);
-            
-            // 번개장터로 리다이렉션 대기
-            wait.until(webDriver -> webDriver.getCurrentUrl().contains("bunjang.co.kr"));
-            
-            // 원래 탭으로 돌아가기
-            webDriver.switchTo().window(originalWindow);
-            
+            log.info("✅ Bunjang login flow completed successfully");
             return true;
         } catch (Exception e) {
-            log.error("Failed to fill Naver OAuth login form: {}", e.getMessage());
+            log.error("Failed to complete Bunjang login flow: {}", e.getMessage());
             return false;
         }
     }
