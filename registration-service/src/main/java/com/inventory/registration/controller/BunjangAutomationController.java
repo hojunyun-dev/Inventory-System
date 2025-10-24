@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -24,11 +23,8 @@ public class BunjangAutomationController {
     @PostMapping("/session/open")
     public ResponseEntity<Map<String, Object>> openManualLoginWindow() {
         try {
-            bunjangRegistrationService.openForManualLogin();
-            return ResponseEntity.ok(Map.of(
-                "success", true,
-                "message", "브라우저가 열렸습니다. 번개장터에 수동으로 로그인해주세요."
-            ));
+            Map<String, Object> result = bunjangRegistrationService.openForManualLogin(null);
+            return ResponseEntity.ok(result);
         } catch (Exception e) {
             log.error("수동 로그인 창 오픈 실패: {}", e.getMessage());
             return ResponseEntity.status(500).body(Map.of(
@@ -70,9 +66,12 @@ public class BunjangAutomationController {
             ));
         } catch (Exception e) {
             log.error("상품 정보와 함께 로그인 시작 실패: {}", e.getMessage(), e);
+            log.error("Exception details: ", e);
             return ResponseEntity.status(500).body(Map.of(
                 "success", false,
-                "message", "로그인 시작 실패: " + e.getMessage()
+                "message", "로그인 시작 실패: " + e.getMessage(),
+                "error", e.getClass().getSimpleName(),
+                "details", e.getMessage()
             ));
         }
     }
@@ -83,12 +82,8 @@ public class BunjangAutomationController {
     @GetMapping("/session/status")
     public ResponseEntity<Map<String, Object>> sessionStatus() {
         try {
-            boolean loggedIn = bunjangRegistrationService.isLoggedIn();
-            return ResponseEntity.ok(Map.of(
-                "success", true,
-                "loggedIn", loggedIn,
-                "message", loggedIn ? "로그인됨" : "로그인되지 않음"
-            ));
+            Map<String, Object> result = bunjangRegistrationService.checkLoginStatus();
+            return ResponseEntity.ok(result);
         } catch (Exception e) {
             log.error("로그인 상태 확인 실패: {}", e.getMessage());
             return ResponseEntity.status(500).body(Map.of(
@@ -104,7 +99,7 @@ public class BunjangAutomationController {
     @PostMapping("/session/close")
     public ResponseEntity<Map<String, Object>> closeSession() {
         try {
-            bunjangRegistrationService.closeSession();
+            bunjangRegistrationService.cleanup();
             return ResponseEntity.ok(Map.of(
                 "success", true,
                 "message", "세션을 종료했습니다."
@@ -114,6 +109,49 @@ public class BunjangAutomationController {
             return ResponseEntity.status(500).body(Map.of(
                 "success", false,
                 "message", "세션 종료 실패: " + e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * 브라우저 세션 유지
+     */
+    @PostMapping("/session/keep-alive")
+    public ResponseEntity<Map<String, Object>> keepSessionAlive() {
+        try {
+            // 세션 상태 확인으로 세션 유지 효과
+            Map<String, Object> result = bunjangRegistrationService.checkLoginStatus();
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "브라우저 세션이 유지되었습니다."
+            ));
+        } catch (Exception e) {
+            log.error("세션 유지 실패: {}", e.getMessage());
+            return ResponseEntity.status(500).body(Map.of(
+                "success", false,
+                "message", "세션 유지 실패: " + e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * 브라우저 세션 상태 확인
+     */
+    @GetMapping("/session/active")
+    public ResponseEntity<Map<String, Object>> sessionActive() {
+        try {
+            Map<String, Object> result = bunjangRegistrationService.checkLoginStatus();
+            boolean isActive = (Boolean) result.get("loggedIn");
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "active", isActive,
+                "message", isActive ? "브라우저 세션이 활성화되어 있습니다." : "브라우저 세션이 비활성화되어 있습니다."
+            ));
+        } catch (Exception e) {
+            log.error("세션 상태 확인 실패: {}", e.getMessage());
+            return ResponseEntity.status(500).body(Map.of(
+                "success", false,
+                "message", "세션 상태 확인 실패: " + e.getMessage()
             ));
         }
     }
@@ -190,8 +228,8 @@ public class BunjangAutomationController {
             return ResponseEntity.ok(Map.of(
                 "success", true,
                 "message", "상품 등록이 완료되었습니다.",
-                "registrationId", result.getPlatformProductId(),
-                "platformUrl", result.getPlatformUrl()
+                "registrationId", result != null && result.getPlatformProductId() != null ? result.getPlatformProductId() : "unknown",
+                "platformUrl", result != null && result.getPlatformUrl() != null ? result.getPlatformUrl() : "unknown"
             ));
         } catch (Exception e) {
             log.error("상품 등록 실패: {}", e.getMessage(), e);

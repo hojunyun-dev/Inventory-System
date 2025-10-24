@@ -9,13 +9,18 @@ spring:
     name: registration-service
   
   datasource:
-    url: jdbc:mariadb://localhost:3307/registration_db
-    driverClassName: org.mariadb.jdbc.Driver
-    username: inventory
-    password: inventory123
+    url: jdbc:h2:mem:registration_db
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
   
   jpa:
-    database-platform: org.hibernate.dialect.MariaDBDialect
+    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
     show-sql: true
@@ -28,6 +33,14 @@ spring:
     user:
       name: admin
       password: admin123
+
+  # CORS 설정
+  mvc:
+    cors:
+      allowed-origins: "http://localhost:3000"
+      allowed-methods: "GET,POST,PUT,DELETE,OPTIONS"
+      allowed-headers: "*"
+      allow-credentials: true
 
 # Token Management Service Configuration
 token-service:
@@ -112,6 +125,20 @@ automation:
   screenshot:
     enabled: true
     path: /tmp/screenshots
+  # 프록시 설정 (IP 변경을 통한 감지 우회)
+  proxy:
+    enabled: ${PROXY_ENABLED:false}
+    host: ${PROXY_HOST:}
+    port: ${PROXY_PORT:8080}
+  # AWS EC2 IP 자동 변경 설정
+  aws:
+    enabled: ${AWS_IP_ROTATION_ENABLED:false}
+    region: ${AWS_REGION:ap-northeast-2}
+    instance-id: ${AWS_INSTANCE_ID:}
+    access-key: ${AWS_ACCESS_KEY:}
+    secret-key: ${AWS_SECRET_KEY:}
+    s3-bucket: ${AWS_S3_BUCKET:}
+    error-threshold: ${AWS_ERROR_THRESHOLD:5}
   # 테스트용 계정 정보 (환경변수로 설정 권장)
   # 실제 계정 정보는 .env.local 파일에 설정하세요
   test-accounts:
