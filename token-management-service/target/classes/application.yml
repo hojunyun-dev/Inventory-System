@@ -41,17 +41,34 @@ oauth:
     client-secret: ${NAVER_CLIENT_SECRET:}
     token-url: https://nid.naver.com/oauth2.0/token
     scope: commerce
+    api-base-url: https://api.commerce.naver.com
+    endpoints:
+      products: /products
+      orders: /orders
+      inquiries: /inquiries
+      settlements: /settlements
     
   cafe24:
     client-id: ${CAFE24_CLIENT_ID:}
     client-secret: ${CAFE24_CLIENT_SECRET:}
     token-url: https://your-mall.cafe24api.com/api/v2/oauth/token
+    authorize-url: https://your-mall.cafe24api.com/api/v2/oauth/authorize
+    revoke-url: https://your-mall.cafe24api.com/api/v2/oauth/revoke
     scope: mall.read_application mall.write_application
+    api-base-url: https://your-mall.cafe24api.com/api/v2/admin
+    endpoints:
+      products: /products
+      orders: /orders
+      customers: /customers
+      boards: /boards
     
   coupang:
-    access-key: ${COUPANG_ACCESS_KEY:}
-    secret-key: ${COUPANG_SECRET_KEY:}
-    token-url: https://api-gateway.coupang.com/token
+    api-key: ${COUPANG_API_KEY:}
+    api-base-url: https://api-gateway.coupang.com/v2/providers/openapi/apis/api/v1
+    endpoints:
+      products: /marketplace/seller-products
+      orders: /ordersheets
+      settlements: /settlements
 
 # Encryption Configuration
 encryption:

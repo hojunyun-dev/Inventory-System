@@ -92,12 +92,54 @@ lerna-debug.log*
 /frontend/build/
 /frontend-backup/build/
 
-# Environment variables
+# Environment variables and sensitive data
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env.*
+*.env
+
+# Account credentials and sensitive information
+credentials/
+secrets/
+*.credentials
+*.secrets
+account-info.*
+login-info.*
+user-data.*
+sensitive-data.*
+
+# API Keys and tokens
+api-keys.*
+tokens.*
+oauth-credentials.*
+platform-accounts.*
+
+# Test account information
+test-accounts.*
+automation-accounts.*
+demo-credentials.*
+
+# Configuration files with sensitive data
+application-local.yml
+application-dev.yml
+application-prod.yml
+application-secret.yml
+config/secrets/
+config/credentials/
+
+# Browser automation data
+screenshots/
+automation-logs/
+webdriver-data/
+selenium-data/
+
+# Personal information files
+personal-data.*
+user-info.*
+private-keys.*
 
 # Database files
 *.db

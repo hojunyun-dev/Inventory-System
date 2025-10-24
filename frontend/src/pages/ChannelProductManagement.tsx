@@ -8,9 +8,9 @@ import {
   Add as AddIcon, Store as StoreIcon, Edit as EditIcon, Delete as DeleteIcon,
   Sync as SyncIcon, Link as LinkIcon,
 } from '@mui/icons-material';
-import axios from 'axios';
+import api from '../services/api';
 import { Channel, ChannelProduct, ChannelProductStatus, Product } from '../types';
-import { productApi } from '../services/api';
+import { productApi, bunjangApi } from '../services/api';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -57,13 +57,18 @@ const ChannelProductManagement: React.FC = () => {
   const fetchChannelProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:8080/api/channel-products', {
-        withCredentials: true
-      });
+      const response = await api.get('/channel-products');
       setChannelProducts(response.data);
     } catch (err) {
-      setError('채널 상품 목록을 불러오는 중 오류가 발생했습니다.');
-      console.error('Failed to fetch channel products:', err);
+      // 백엔드에 채널 상품 API가 아직 없는 경우(404) 빈 목록으로 표시
+      const anyErr: any = err;
+      if (anyErr?.response?.status === 404) {
+        setChannelProducts([]);
+        setError('');
+      } else {
+        setError('채널 상품 목록을 불러오는 중 오류가 발생했습니다.');
+        console.error('Failed to fetch channel products:', err);
+      }
     } finally {
       setLoading(false);
     }
@@ -89,13 +94,112 @@ const ChannelProductManagement: React.FC = () => {
       return;
     }
 
+    // 선택된 상품 정보 가져오기
+    const prod = products.find(p => p.id === selectedProduct);
+    if (!prod) {
+      alert('선택된 상품을 찾을 수 없습니다.');
+      return;
+    }
+
+    // 가격 계산
+    const effectivePrice = Number(channelPrice || prod.price || 0);
+    if (!Number.isFinite(effectivePrice) || effectivePrice <= 0) {
+      alert('가격을 0보다 큰 값으로 입력하세요.');
+      return;
+    }
+
+    // 번개장터의 경우 특별한 처리
+    if (selectedChannel === 'BUNGAE_MARKET') {
+      try {
+        // 1. 로그인 상태 확인 (등록 서비스로 호출)
+        const statusResponse = await bunjangApi.checkLoginStatus();
+        
+        if (!statusResponse.data.loggedIn) {
+          // 2. 로그인되지 않은 경우 - 상품 정보와 함께 브라우저 창 열기 (로그인 완료 후 자동 상품 등록)
+          console.log('번개장터에 로그인되지 않았습니다. 상품 정보와 함께 로그인을 시작합니다.');
+          
+          const response = await bunjangApi.openWithProduct({
+            productId: prod.id || 0,
+            productName: prod.name,
+            description: prod.description || '상품 설명입니다.',
+            price: effectivePrice,
+            quantity: allocatedQuantity,
+            category: prod.category?.name || '기타'
+          });
+          
+          if (response.data.success) {
+            alert('번개장터 브라우저 창이 열렸습니다. 로그인을 완료하면 상품이 자동으로 등록됩니다.');
+            setOpenDialog(false);
+            setSelectedProduct(null);
+            setAllocatedQuantity(0);
+            return;
+          } else {
+            alert('번개장터 로그인 시작에 실패했습니다: ' + response.data.message);
+            return;
+          }
+        } else {
+          // 3. 로그인된 경우 상품 등록 자동 진행
+          console.log('번개장터에 로그인되어 있습니다. 상품 등록을 자동으로 진행합니다.');
+          
+          try {
+            const registerResponse = await api.post('/automation/bunjang/register', {
+              productId: prod.id,
+              productName: prod.name,
+              description: prod.description || '상품 설명입니다.',
+              price: effectivePrice,
+              quantity: allocatedQuantity,
+              category: prod.category?.name || '기타'
+            });
+            
+            if (registerResponse.data.success) {
+              alert('번개장터에 상품이 성공적으로 등록되었습니다!');
+              setOpenDialog(false);
+              setSelectedProduct(null);
+              setAllocatedQuantity(0);
+              return;
+            } else {
+              alert('번개장터 상품 등록에 실패했습니다: ' + registerResponse.data.message);
+              return;
+            }
+          } catch (registerError) {
+            console.error('번개장터 상품 등록 실패:', registerError);
+            alert('번개장터 상품 등록에 실패했습니다. 다시 시도해주세요.');
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('번개장터 로그인 상태 확인 실패:', error);
+        alert('번개장터 로그인 상태를 확인할 수 없습니다. 다시 시도해주세요.');
+        return;
+      }
+    }
+
+    // 다른 채널의 경우 일반적인 등록 처리
     try {
-      await axios.post('http://localhost:8080/api/channel-products/register', {
-        productId: selectedProduct,
-        channel: selectedChannel,
-        allocatedQuantity: allocatedQuantity,
-        channelPrice: channelPrice || null,
-      }, { withCredentials: true });
+      // 플랫폼 매핑
+      const platformMap: Record<string, string> = {
+        CARROT_MARKET: 'danggeun',
+        BUNGAE_MARKET: 'bunjang',
+        JOONGGONARA: 'junggonara',
+        CAFE24: 'cafe24',
+        NAVER_STORE: 'naver',
+        COUPANG: 'coupang',
+        AUCTION: 'auction',
+        DIRECT_SALE: 'direct'
+      };
+      const platform = platformMap[selectedChannel];
+      
+      const payload = {
+        productId: String(selectedProduct),
+        productName: prod.name,
+        description: prod.description || '',
+        price: effectivePrice,
+        quantity: allocatedQuantity,
+        category: prod.category?.name || '',
+        images: prod.imageUrl ? [prod.imageUrl] : []
+      };
+
+      await api.post(`/platform/${platform}/register`, payload);
 
       alert('채널에 상품이 등록되었습니다!');
       setOpenDialog(false);
@@ -114,9 +218,7 @@ const ChannelProductManagement: React.FC = () => {
     if (!window.confirm('정말 이 채널 상품을 삭제하시겠습니까?')) return;
 
     try {
-      await axios.delete(`http://localhost:8080/api/channel-products/${id}`, {
-        withCredentials: true
-      });
+      await api.delete(`/channel-products/${id}`);
       alert('삭제되었습니다.');
       fetchChannelProducts();
     } catch (err) {
@@ -252,9 +354,25 @@ const ChannelProductManagement: React.FC = () => {
                   filterByChannel(channel.value).map((cp) => (
                     <TableRow key={cp.id} hover>
                       <TableCell>
-                        <Typography variant="body2" fontWeight="bold">
-                          {cp.productName}
-                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          {cp.productImageUrl && (
+                            <Box
+                              component="img"
+                              src={cp.productImageUrl}
+                              alt={cp.productImageAltText || cp.productName}
+                              sx={{
+                                width: 40,
+                                height: 40,
+                                objectFit: 'cover',
+                                borderRadius: 1,
+                                border: '1px solid #e0e0e0'
+                              }}
+                            />
+                          )}
+                          <Typography variant="body2" fontWeight="bold">
+                            {cp.productName}
+                          </Typography>
+                        </Box>
                       </TableCell>
                       <TableCell>{cp.productSku}</TableCell>
                       <TableCell>{cp.productOemNumber || '-'}</TableCell>
@@ -314,6 +432,51 @@ const ChannelProductManagement: React.FC = () => {
                 ))}
               </TextField>
             </Grid>
+            
+            {/* 선택된 상품 정보 표시 */}
+            {selectedProduct && (
+              <Grid item xs={12}>
+                <Box sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: 1, bgcolor: '#f5f5f5' }}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    선택된 상품 정보
+                  </Typography>
+                  {(() => {
+                    const product = products.find(p => p.id === selectedProduct);
+                    return product ? (
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        {product.imageUrl && (
+                          <Box
+                            component="img"
+                            src={product.imageUrl}
+                            alt={product.imageAltText || product.name}
+                            sx={{
+                              width: 60,
+                              height: 60,
+                              objectFit: 'cover',
+                              borderRadius: 1,
+                              border: '1px solid #e0e0e0'
+                            }}
+                          />
+                        )}
+                        <Box>
+                          <Typography variant="body1" fontWeight="bold">
+                            {product.name}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            SKU: {product.sku} | 가격: {product.price?.toLocaleString()}원
+                          </Typography>
+                          {product.description && (
+                            <Typography variant="body2" color="textSecondary" sx={{ mt: 0.5 }}>
+                              {product.description}
+                            </Typography>
+                          )}
+                        </Box>
+                      </Box>
+                    ) : null;
+                  })()}
+                </Box>
+              </Grid>
+            )}
             <Grid item xs={12}>
               <TextField
                 fullWidth

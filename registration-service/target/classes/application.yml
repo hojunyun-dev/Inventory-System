@@ -9,13 +9,18 @@ spring:
     name: registration-service
   
   datasource:
-    url: jdbc:mariadb://localhost:3307/registration_db
-    driverClassName: org.mariadb.jdbc.Driver
-    username: inventory
-    password: inventory123
+    url: jdbc:h2:mem:registration_db
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
   
   jpa:
-    database-platform: org.hibernate.dialect.MariaDBDialect
+    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
     show-sql: true
@@ -29,6 +34,14 @@ spring:
       name: admin
       password: admin123
 
+  # CORS 설정
+  mvc:
+    cors:
+      allowed-origins: "http://localhost:3000"
+      allowed-methods: "GET,POST,PUT,DELETE,OPTIONS"
+      allowed-headers: "*"
+      allow-credentials: true
+
 # Token Management Service Configuration
 token-service:
   base-url: http://localhost:8081
@@ -40,8 +53,20 @@ token-service:
 oauth:
   naver:
     api-base-url: https://api.commerce.naver.com
-    client-id: ${NAVER_CLIENT_ID:}
-    client-secret: ${NAVER_CLIENT_SECRET:}
+    client-id: ${NAVER_CLIENT_ID:test-client-id}
+    client-secret: ${NAVER_CLIENT_SECRET:test-client-secret}
+    authorize-url: https://nid.naver.com/oauth2.0/authorize
+    token-url: https://nid.naver.com/oauth2.0/token
+    user-info-url: https://openapi.naver.com/v1/nid/me
+    redirect-uri: ${NAVER_REDIRECT_URI:http://localhost:8082/api/oauth/naver/callback}
+  cafe24:
+    api-base-url: https://your-mall.cafe24api.com/api/v2/admin
+    client-id: ${CAFE24_CLIENT_ID:test-client-id}
+    client-secret: ${CAFE24_CLIENT_SECRET:test-client-secret}
+    mall-id: ${CAFE24_MALL_ID:test-mall-id}
+  coupang:
+    api-base-url: https://api-gateway.coupang.com/v2/providers/openapi/apis/api/v1
+    api-key: ${COUPANG_API_KEY:}
 
 # Platform-specific configurations
 platforms:
@@ -53,22 +78,36 @@ platforms:
       orders: /orders
       inquiries: /inquiries
       settlements: /settlements
-  cafe24:
-    api-base-url: https://your-store.cafe24api.com
-    endpoints:
-      products: /admin/products
-      categories: /admin/categories
-  coupang:
-    api-base-url: https://api-gateway.coupang.com
-    endpoints:
-      products: /v2/providers/affiliate_open_api/apis/openapi/products
   bunjang:
-    base-url: https://m.bunjang.co.kr
+    base-url: https://www.bunjang.co.kr
+    login-url: https://www.bunjang.co.kr/login
+    register-url: https://www.bunjang.co.kr/products/new
     endpoints:
       login: /login
       products: /products
+      register: /products/new
+    
+  cafe24:
+    api-base-url: https://your-mall.cafe24api.com/api/v2/admin
+    endpoints:
+      products: /products
+      orders: /orders
+      customers: /customers
+      boards: /boards
+      categories: /categories
+  coupang:
+    api-base-url: https://api-gateway.coupang.com/v2/providers/openapi/apis/api/v1
+    endpoints:
+      products: /marketplace/seller-products
+      orders: /ordersheets
+      settlements: /settlements
   danggeun:
     base-url: https://www.danggeunmarket.com
+    endpoints:
+      login: /login
+      products: /products
+  junggonara:
+    base-url: https://cafe.naver.com/joonggonara
     endpoints:
       login: /login
       products: /products
@@ -76,12 +115,36 @@ platforms:
 # Web automation settings
 automation:
   browser:
-    headless: true
+    headless: false
     timeout: 30000
     window-size: "1920,1080"
+    remote-url: ""  # Docker 환경에서 사용할 원격 WebDriver URL
   retry:
     max-attempts: 3
-    delay: 1000
+    delay: 2000
+  screenshot:
+    enabled: true
+    path: /tmp/screenshots
+  # 프록시 설정 (IP 변경을 통한 감지 우회)
+  proxy:
+    enabled: ${PROXY_ENABLED:false}
+    host: ${PROXY_HOST:}
+    port: ${PROXY_PORT:8080}
+  # AWS EC2 IP 자동 변경 설정
+  aws:
+    enabled: ${AWS_IP_ROTATION_ENABLED:false}
+    region: ${AWS_REGION:ap-northeast-2}
+    instance-id: ${AWS_INSTANCE_ID:}
+    access-key: ${AWS_ACCESS_KEY:}
+    secret-key: ${AWS_SECRET_KEY:}
+    s3-bucket: ${AWS_S3_BUCKET:}
+    error-threshold: ${AWS_ERROR_THRESHOLD:5}
+  # 테스트용 계정 정보 (환경변수로 설정 권장)
+  # 실제 계정 정보는 .env.local 파일에 설정하세요
+  test-accounts:
+    naver:
+      username: ${NAVER_TEST_USERNAME:}
+      password: ${NAVER_TEST_PASSWORD:}
 
 logging:
   level:

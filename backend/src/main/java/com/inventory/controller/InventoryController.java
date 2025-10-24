@@ -1,5 +1,6 @@
 package com.inventory.controller;
 
+import com.inventory.dto.InventoryDto;
 import com.inventory.entity.Inventory;
 import com.inventory.entity.Product;
 import com.inventory.repository.InventoryRepository;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/inventories")
@@ -23,13 +25,18 @@ public class InventoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Inventory>> getAllInventories() {
-        return ResponseEntity.ok(inventoryRepository.findAll());
+    public ResponseEntity<List<InventoryDto>> getAllInventories() {
+        List<InventoryDto> inventoryDtos = inventoryRepository.findAll()
+                .stream()
+                .map(InventoryDto::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(inventoryDtos);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Inventory> getInventoryById(@PathVariable Long id) {
+    public ResponseEntity<InventoryDto> getInventoryById(@PathVariable Long id) {
         return inventoryRepository.findById(id)
+                .map(InventoryDto::fromEntity)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

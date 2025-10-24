@@ -22,13 +22,13 @@ public class NaverCommerceService {
     private final WebClient.Builder webClientBuilder;
     private final ObjectMapper objectMapper;
     
-    @Value("${oauth.naver.api-base-url}")
+    @Value("${oauth.naver.api-base-url:https://api.commerce.naver.com}")
     private String naverApiBaseUrl;
     
-    @Value("${oauth.naver.client-id}")
+    @Value("${oauth.naver.client-id:test-client-id}")
     private String clientId;
     
-    @Value("${oauth.naver.client-secret}")
+    @Value("${oauth.naver.client-secret:test-client-secret}")
     private String clientSecret;
     
     /**

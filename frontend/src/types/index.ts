@@ -23,6 +23,7 @@ export interface Product {
   dimensions?: string;
   isSerialized?: boolean;
   imageUrl?: string;
+  imageAltText?: string;
   technicalDrawingUrl?: string;
   notes?: string;
   isActive?: boolean;
@@ -78,14 +79,19 @@ export interface Category {
 export interface Inventory {
   id?: number;
   productId: number;
+  productName?: string;
+  productSku?: string;
+  productCategory?: string;
   product?: Product;
   quantity: number;
-  location: string;
-  warehouseLocation?: WarehouseLocation;
+  location?: string;
+  warehouseLocation?: string;
   minStockLevel?: number;
   maxStockLevel?: number;
-  status: InventoryStatus;
+  status?: InventoryStatus;
   lastUpdated?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface WarehouseLocation {
@@ -308,6 +314,8 @@ export interface ChannelProduct {
   channelTitle?: string;
   channelDescription?: string;
   displayOrder?: number;
+  productImageUrl?: string;
+  productImageAltText?: string;
   isFeatured?: boolean;
   notes?: string;
   createdAt?: string;

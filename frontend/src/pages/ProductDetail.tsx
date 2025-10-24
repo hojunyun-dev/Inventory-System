@@ -11,7 +11,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { productApi, inventoryApi } from '../services/api';
-import { Product, Inventory, PartType, MovementCategory } from '../types';
+import { Product, Inventory, PartType, MovementCategory, InventoryStatus } from '../types';
 import axios from 'axios';
 
 const ProductDetail: React.FC = () => {
@@ -422,8 +422,8 @@ const ProductDetail: React.FC = () => {
                 <Box sx={{ mb: 2 }}>
                   <Typography variant="body2" color="textSecondary" gutterBottom>재고 상태</Typography>
                   <Chip 
-                    label={getInventoryStatusLabel(inventory.status)} 
-                    color={getInventoryStatusColor(inventory.status)} 
+                    label={getInventoryStatusLabel(inventory.status || InventoryStatus.IN_STOCK)} 
+                    color={getInventoryStatusColor(inventory.status || InventoryStatus.IN_STOCK)} 
                     sx={{ mt: 0.5 }}
                   />
                 </Box>

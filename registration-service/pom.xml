@@ -73,6 +73,12 @@
             <artifactId>webdrivermanager</artifactId>
             <version>5.6.2</version>
         </dependency>
+        <!-- Token Management Service dependency -->
+        <dependency>
+            <groupId>com.inventory</groupId>
+            <artifactId>token-management-service</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- Jackson for JSON processing -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

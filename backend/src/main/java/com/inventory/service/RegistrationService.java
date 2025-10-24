@@ -29,7 +29,7 @@ public class RegistrationService {
         log.info("Registering product via registration service: {}", request.getProductName());
         
         return registrationServiceWebClient.post()
-                .uri(registrationServiceUrl + "/api/registrations")
+                .uri(registrationServiceUrl + "/api/automation/bunjang/register")
                 .bodyValue(request)
                 .retrieve()
                 .bodyToMono(RegistrationResponse.class)
