@@ -20,7 +20,6 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class AutomationOrchestratorService {
     
-    private final BunjangAutomationService bunjangAutomationService;
     private final DanggeunAutomationService danggeunAutomationService;
     private final JunggonaraAutomationService junggonaraAutomationService;
     
@@ -39,20 +38,7 @@ public class AutomationOrchestratorService {
         
         List<CompletableFuture<AutomationResult>> futures = new ArrayList<>();
         
-        // 번개장터 등록
-        CompletableFuture<AutomationResult> bunjangFuture = CompletableFuture.supplyAsync(() -> {
-            try {
-                return bunjangAutomationService.registerProduct(productData, username, password);
-            } catch (Exception e) {
-                log.error("Bunjang registration failed: {}", e.getMessage());
-                return AutomationResult.builder()
-                        .platform(PlatformConstants.BUNJANG)
-                        .success(false)
-                        .errorMessage(e.getMessage())
-                        .build();
-            }
-        }, executorService);
-        futures.add(bunjangFuture);
+        // 번개장터 등록은 API 기반으로 처리되므로 제외
         
         // 당근마켓 등록 (휴대폰 번호 필요)
         CompletableFuture<AutomationResult> danggeunFuture = CompletableFuture.supplyAsync(() -> {
@@ -105,7 +91,11 @@ public class AutomationOrchestratorService {
         try {
             switch (platform.toLowerCase()) {
                 case PlatformConstants.BUNJANG:
-                    return bunjangAutomationService.registerProduct(productData, username, password);
+                    return AutomationResult.builder()
+                            .platform(PlatformConstants.BUNJANG)
+                            .success(false)
+                            .errorMessage("Bunjang registration is handled via API, not automation")
+                            .build();
                     
                 case PlatformConstants.DANGGEUN:
                     return danggeunAutomationService.registerProduct(productData, username, password);

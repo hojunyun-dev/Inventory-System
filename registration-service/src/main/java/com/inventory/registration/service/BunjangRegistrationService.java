@@ -4,6 +4,7 @@ import com.inventory.registration.dto.ProductRegistrationRequest;
 import com.inventory.registration.entity.ProductRegistration;
 import com.inventory.registration.service.bunjang.*;
 import com.example.common.dto.TokenBundle;
+import com.example.common.dto.ProductRegisterRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,6 +48,9 @@ public class BunjangRegistrationService {
     
     @Autowired
     private AwsIpRotationService awsIpRotationService;
+    
+    @Autowired
+    private BunjangApiRegistrationService apiRegistrationService;
     
     @Autowired
     private BunjangUtils utils;
@@ -173,34 +178,86 @@ public class BunjangRegistrationService {
             // ✅ 로그인 완료 후 토큰 캡처 수행
             log.info("🔍 Login completed! Capturing authentication token...");
             
-            String capturedToken = tokenCapturer.captureToken(driver);
-            if (capturedToken != null && tokenCapturer.isValidToken(capturedToken)) {
-                log.info("✅ Token captured and validated successfully");
-                
-                // 토큰을 TokenBundleService에 저장
-                try {
-                    TokenBundle tokenBundle = new TokenBundle();
-                    tokenBundle.platform = "BUNJANG";
-                    tokenBundle.csrf = capturedToken; // 토큰을 CSRF 필드에 저장
-                    tokenBundle.expiresAt = Instant.now().plus(Duration.ofHours(9)); // 9시간 후 만료 (한국 시간 기준)
-                    tokenBundle.cookies = java.util.Collections.emptyList(); // 빈 쿠키 리스트
-                    
-                    tokenBundleService.saveTokenBundle(tokenBundle);
-                    log.info("✅ Token saved to TokenBundleService successfully");
-                } catch (Exception e) {
-                    log.warn("⚠️ Failed to save token to TokenBundleService: {}", e.getMessage());
-                }
-                
-                return Map.of(
-                    "success", true, 
-                    "message", "로그인 완료 및 토큰 캡처 성공",
-                    "token", capturedToken
-                );
-            } else {
-                log.warn("⚠️ Token capture failed or invalid token");
+            // x-bun-auth-token 추출 (1순위)
+            String authToken = tokenCapturer.captureAuthToken(driver);
+            if (authToken == null) {
+                log.error("❌ x-bun-auth-token capture failed - no fallback to CSRF");
                 return Map.of(
                     "success", false, 
-                    "message", "로그인 완료되었으나 토큰 캡처 실패"
+                    "message", "x-bun-auth-token 캡처 실패 - CSRF 토큰과 혼용 금지"
+                );
+            }
+            
+            // CSRF 토큰도 별도로 캡처
+            String csrfToken = tokenCapturer.captureToken(driver);
+            
+            // authToken과 csrf가 같은 경우 실패 처리
+            if (authToken.equals(csrfToken)) {
+                log.error("❌ authToken equals CSRF token - this is invalid: {}", authToken.substring(0, 8) + "...");
+                return Map.of(
+                    "success", false, 
+                    "message", "authToken과 CSRF 토큰이 동일함 - 잘못된 토큰 캡처"
+                );
+            }
+            
+            log.info("✅ x-bun-auth-token captured successfully: {}", authToken.substring(0, 8) + "...");
+            if (csrfToken != null) {
+                log.info("✅ CSRF token captured: {}", csrfToken.substring(0, 8) + "...");
+            }
+            
+            // 쿠키 캡처
+            List<com.example.common.dto.CookieEntry> capturedCookies = tokenCapturer.captureCookies(driver);
+            log.info("🍪 Captured {} cookies", capturedCookies.size());
+            
+            // 토큰을 TokenBundleService에 저장
+            try {
+                TokenBundle tokenBundle = new TokenBundle();
+                tokenBundle.platform = "BUNJANG";
+                tokenBundle.csrf = csrfToken; // CSRF 토큰 (별도)
+                tokenBundle.authToken = authToken; // x-bun-auth-token (별도)
+                tokenBundle.expiresAt = Instant.now().plus(Duration.ofHours(9)); // 9시간 후 만료
+                tokenBundle.cookies = capturedCookies; // 실제 쿠키 리스트
+                
+                tokenBundleService.saveTokenBundle(tokenBundle);
+                log.info("✅ Token and cookies saved to TokenBundleService successfully");
+                
+                // 파일 저장 완료를 위한 짧은 대기
+                Thread.sleep(100);
+                
+                // 상품등록 API 호출
+                try {
+                    log.info("🚀 Starting automatic product registration via API...");
+                    ProductRegisterRequest apiRequest = new ProductRegisterRequest();
+                    apiRequest.platform = "BUNJANG";
+                    apiRequest.productId = String.valueOf(productRequest.getProductId());
+                    apiRequest.name = productRequest.getProductName();
+                    apiRequest.price = productRequest.getPrice().longValue();
+                    apiRequest.description = productRequest.getProductDescription();
+                    apiRequest.categoryId = productRequest.getCategory();
+                    apiRequest.keywords = List.of(productRequest.getCategory());
+                    
+                    Map<String, Object> apiResult = apiRegistrationService.registerProduct(apiRequest).block();
+                    log.info("✅ Product registration API call completed: {}", apiResult);
+                    
+                    return Map.of(
+                        "success", true, 
+                        "message", "로그인 완료, 토큰 캡처 및 상품등록 API 호출 성공",
+                        "token", authToken,
+                        "apiResult", apiResult
+                    );
+                } catch (Exception e) {
+                    log.error("❌ Product registration API call failed: {}", e.getMessage());
+                    return Map.of(
+                        "success", true, 
+                        "message", "로그인 완료 및 토큰 캡처 성공, 상품등록 API 호출 실패: " + e.getMessage(),
+                        "token", authToken
+                    );
+                }
+            } catch (Exception e) {
+                log.warn("⚠️ Failed to save token to TokenBundleService: {}", e.getMessage());
+                return Map.of(
+                    "success", false, 
+                    "message", "토큰 저장 실패: " + e.getMessage()
                 );
             }
         }
@@ -595,11 +652,21 @@ public class BunjangRegistrationService {
         log.info("Starting product registration for: {}", request.getProductName());
         
         try {
-            // 상품 등록 프로세스 실행
-            Map<String, Object> result = proceedWithProductRegistration(request);
+            // ProductRegistrationRequest를 ProductRegisterRequest로 변환
+            com.example.common.dto.ProductRegisterRequest apiRequest = new com.example.common.dto.ProductRegisterRequest();
+            apiRequest.name = request.getProductName();
+            apiRequest.description = request.getProductDescription();
+            apiRequest.price = request.getPrice().longValue();
+            apiRequest.categoryId = request.getCategory();
+            apiRequest.keywords = List.of(); // 기본값
             
-            if ((Boolean) result.get("success")) {
-                // 성공 시 ProductRegistration 객체 반환
+            // API 기반 상품 등록 실행
+            Map<String, Object> result = apiRegistrationService.registerProduct(apiRequest).block();
+            
+            if (result != null && (Boolean) result.get("success")) {
+                log.info("✅ Product registration successful via API");
+                
+                // ProductRegistration 객체 생성
                 ProductRegistration registration = new ProductRegistration();
                 registration.setPlatform("bunjang");
                 registration.setProductId(request.getProductId());
@@ -610,10 +677,10 @@ public class BunjangRegistrationService {
                 
                 return registration;
             } else {
-                throw new RuntimeException("상품 등록 실패: " + result.get("message"));
+                throw new RuntimeException("상품 등록 실패: " + (result != null ? result.get("message") : "API 호출 실패"));
             }
             
-                } catch (Exception e) {
+        } catch (Exception e) {
             log.error("❌ 상품 등록 중 오류 발생: {}", e.getMessage());
             throw new RuntimeException("상품 등록 실패: " + e.getMessage());
         }

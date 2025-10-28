@@ -9,7 +9,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import io.github.bonigarcia.wdm.WebDriverManager;
+// WebDriverManager 제거 - Selenium Manager 사용
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -275,7 +275,7 @@ public abstract class BaseAutomationService {
             } catch (Exception e) {
                 log.warn("Failed to create WebDriver from factory, falling back to direct ChromeDriver: {}", e.getMessage());
                 try {
-                    WebDriverManager.chromedriver().setup();
+                    // Selenium Manager가 자동으로 ChromeDriver 관리
                     ChromeOptions options = new ChromeOptions();
                     options.addArguments("--no-sandbox");
                     options.addArguments("--disable-dev-shm-usage");

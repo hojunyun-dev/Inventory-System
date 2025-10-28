@@ -178,10 +178,16 @@ public class BunjangAutomationController {
             }
             registrationRequest.setCategory((String) request.get("category"));
             
-            // 상품 등록 실행 (로그인 후 자동 진행)
-            Map<String, Object> result = bunjangRegistrationService.proceedWithProductRegistration(registrationRequest);
+            // 상품 등록 실행 (API 기반)
+            com.inventory.registration.entity.ProductRegistration result = 
+                bunjangRegistrationService.registerProduct(registrationRequest);
             
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "상품 등록이 완료되었습니다.",
+                "registrationId", result != null && result.getPlatformProductId() != null ? result.getPlatformProductId() : "unknown",
+                "platformUrl", result != null && result.getPlatformUrl() != null ? result.getPlatformUrl() : "unknown"
+            ));
         } catch (Exception e) {
             log.error("상품 등록 실패 (로그인 후): {}", e.getMessage(), e);
             return ResponseEntity.status(500).body(Map.of(

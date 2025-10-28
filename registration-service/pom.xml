@@ -63,11 +63,6 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
@@ -77,12 +72,12 @@
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
         </dependency>
-        <!-- WebDriverManager for automatic driver management -->
+        <!-- Chrome DevTools Protocol for CDP (Chrome 141 compatible) -->
         <dependency>
-            <groupId>io.github.bonigarcia</groupId>
-            <artifactId>webdrivermanager</artifactId>
-            <version>5.9.2</version>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-devtools-v128</artifactId>
         </dependency>
+        <!-- WebDriverManager 제거 - Selenium Manager 사용 -->
         <!-- Token Management Service dependency -->
         <dependency>
             <groupId>com.inventory</groupId>

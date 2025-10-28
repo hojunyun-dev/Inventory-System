@@ -18,7 +18,6 @@ import java.util.Map;
 public class NaverRegistrationService {
     
     private final WebClient.Builder webClientBuilder;
-    private final TokenService tokenService;
     
     @Value("${platforms.naver.api-base-url}")
     private String naverApiBaseUrl;
@@ -27,8 +26,8 @@ public class NaverRegistrationService {
         log.info("Registering product on Naver: {}", request.getProductName());
         
         try {
-            // Get access token
-            String accessToken = tokenService.getAccessToken("naver");
+            // Get access token - placeholder implementation
+            String accessToken = "placeholder_token";
             
             // Prepare product data for Naver API
             Map<String, Object> productData = prepareNaverProductData(request);

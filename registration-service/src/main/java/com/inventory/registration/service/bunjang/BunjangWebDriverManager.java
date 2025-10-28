@@ -10,7 +10,8 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.PageLoadStrategy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import io.github.bonigarcia.wdm.WebDriverManager;
+import org.springframework.beans.factory.annotation.Autowired;
+// WebDriverManager 제거 - Selenium Manager 사용
 
 import java.time.Duration;
 import java.util.Set;
@@ -24,6 +25,9 @@ import java.util.Set;
 @Component
 @Slf4j
 public class BunjangWebDriverManager {
+    
+    @Autowired
+    private BunjangTokenCapturer tokenCapturer;
     
     @Value("${automation.browser.headless}")
     private Boolean headless;
@@ -50,7 +54,7 @@ public class BunjangWebDriverManager {
         
         try {
             // ChromeDriver 자동 관리
-            WebDriverManager.chromedriver().setup();
+            // Selenium Manager가 자동으로 ChromeDriver 관리
             log.info("ChromeDriver setup completed");
             
             // Chrome 옵션 설정
@@ -83,6 +87,9 @@ public class BunjangWebDriverManager {
             
             // 자동화 감지 우회 JavaScript 실행
             executeAntiDetectionScript(webDriver);
+            
+            // 토큰 캡처를 위한 JavaScript 후킹 스니펫 미리 주입
+            injectTokenHookingScript(webDriver);
             
             log.info("✅ WebDriver created successfully with enhanced session management");
             return webDriver;
@@ -582,5 +589,17 @@ public class BunjangWebDriverManager {
         };
         
         return userAgents[(int) (Math.random() * userAgents.length)];
+    }
+    
+    /**
+     * 토큰 캡처를 위한 JavaScript 후킹 스니펫 주입
+     */
+    private void injectTokenHookingScript(WebDriver driver) {
+        try {
+            log.info("🔧 Injecting token hooking script at page load...");
+            tokenCapturer.injectTokenHookingScript(driver);
+        } catch (Exception e) {
+            log.warn("⚠️ Failed to inject token hooking script: {}", e.getMessage());
+        }
     }
 }

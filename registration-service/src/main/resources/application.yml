@@ -9,18 +9,13 @@ spring:
     name: registration-service
   
   datasource:
-    url: jdbc:h2:mem:registration_db
-    driverClassName: org.h2.Driver
-    username: sa
+    url: jdbc:mariadb://localhost:3306/registration_db
+    driverClassName: org.mariadb.jdbc.Driver
+    username: root
     password: password
   
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-  
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.MariaDBDialect
     hibernate:
       ddl-auto: update
     show-sql: true
@@ -33,6 +28,13 @@ spring:
     user:
       name: admin
       password: admin123
+  
+  # Jackson JSR310 모듈 활성화 (java.time.Instant 지원)
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
 
   # CORS 설정
   mvc:
@@ -134,12 +136,13 @@ selenium:
   user-data-dir: ""  # Chrome 사용자 데이터 디렉토리
   login-wait-timeout-sec: 90  # 로그인 대기 시간 (초)
 
-# Chrome for Testing 설정
+# Chrome for Testing 설정 (v128)
 chrome:
   for-testing:
     path: /home/code/chrome-for-testing/chrome-linux64/chrome
   driver:
     path: /home/code/chrome-for-testing/chromedriver-linux64/chromedriver
+  version: 128.0.6613.84
 
 # 토큰 저장소 설정
 token:
@@ -149,8 +152,8 @@ token:
 # 번개장터 API 설정
 bunjang:
   api:
-    base-url: https://m.bunjang.co.kr
-    product-endpoint: /api/sell
+    base-url: https://api.bunjang.co.kr
+    product-endpoint: /api/pms/v2/products
   base-api: https://api.bunjang.co.kr
   token-ping-path: /api/pms/v2/products
   # 프록시 설정 (IP 변경을 통한 감지 우회)

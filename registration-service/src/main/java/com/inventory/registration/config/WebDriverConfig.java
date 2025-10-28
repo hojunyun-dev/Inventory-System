@@ -1,6 +1,6 @@
 package com.inventory.registration.config;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
+// WebDriverManager 제거 - Selenium Manager 사용
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -34,16 +34,24 @@ public class WebDriverConfig {
         
         ChromeOptions options = new ChromeOptions();
         
-        // 기본 옵션 설정
+        // 시스템 Chrome 사용 (Selenium Manager가 자동 관리)
+        // options.setBinary("/home/code/chrome-for-testing/chrome-linux64/chrome");
+        
+        // 기본 옵션 설정 (헤드리스 모드용)
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--disable-gpu");
         options.addArguments("--disable-extensions");
         options.addArguments("--disable-plugins");
-        options.addArguments("--disable-images"); // 이미지 로딩 비활성화로 속도 향상
+        options.addArguments("--disable-images");
         options.addArguments("--no-first-run");
         options.addArguments("--no-default-browser-check");
         options.addArguments("--lang=ko-KR");
+        options.addArguments("--disable-background-timer-throttling");
+        options.addArguments("--disable-backgrounding-occluded-windows");
+        options.addArguments("--disable-renderer-backgrounding");
+        options.addArguments("--disable-features=TranslateUI");
+        options.addArguments("--disable-ipc-flooding-protection");
         // 안정성 저하 가능 플래그 제거 (충돌 방지)
         // options.addArguments("--disable-web-security");
         // options.addArguments("--allow-running-insecure-content");
@@ -89,8 +97,7 @@ public class WebDriverConfig {
                 throw new RuntimeException("Invalid remote WebDriver URL", e);
             }
         } else {
-            // 로컬 Chrome WebDriver 사용
-            WebDriverManager.chromedriver().setup();
+            // 로컬 Chrome WebDriver 사용 (Selenium Manager 자동 관리)
             ChromeDriver driver = new ChromeDriver(options);
             
             // 타임아웃 설정

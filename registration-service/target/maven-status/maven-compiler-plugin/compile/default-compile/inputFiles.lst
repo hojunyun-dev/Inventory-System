@@ -12,7 +12,6 @@
 /home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/controller/NaverOAuthController.java
 /home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/controller/NaverSocialAutomationController.java
 /home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/controller/ProductRegistrationController.java
-/home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/controller/SimpleAutomationController.java
 /home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/dto/ErrorResponse.java
 /home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/dto/ProductRegistrationRequest.java
 /home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/dto/ProductRegistrationResponse.java
@@ -27,7 +26,6 @@
 /home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/repository/RegistrationTemplateRepository.java
 /home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/service/AutomationOrchestratorService.java
 /home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/service/BaseAutomationService.java
-/home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/service/BunjangAutomationService.java
 /home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/service/BunjangRegistrationService.java
 /home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/service/DanggeunAutomationService.java
 /home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/service/JunggonaraAutomationService.java
@@ -36,7 +34,6 @@
 /home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/service/NaverRegistrationService.java
 /home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/service/NaverSocialAutomationService.java
 /home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/service/ProductRegistrationService.java
-/home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/service/TokenService.java
 /home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/service/bunjang/AwsIpRotationService.java
 /home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/service/bunjang/BunjangApiRegistrationService.java
 /home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/service/bunjang/BunjangFormHandler.java
@@ -44,6 +41,4 @@
 /home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/service/bunjang/BunjangTokenCapturer.java
 /home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/service/bunjang/BunjangUtils.java
 /home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/service/bunjang/BunjangWebDriverManager.java
-/home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/service/bunjang/CdpTokenCaptureService.java
-/home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/service/bunjang/IntegratedBunjangService.java
 /home/code/바탕화면/Inventory-System1/registration-service/src/main/java/com/inventory/registration/service/bunjang/TokenBundleService.java

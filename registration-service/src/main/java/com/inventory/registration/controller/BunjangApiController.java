@@ -3,9 +3,7 @@ package com.inventory.registration.controller;
 import com.example.common.dto.ProductRegisterRequest;
 import com.example.common.dto.TokenBundle;
 import com.inventory.registration.service.bunjang.BunjangApiRegistrationService;
-import com.inventory.registration.service.bunjang.CdpTokenCaptureService;
 import com.inventory.registration.service.bunjang.TokenBundleService;
-import com.inventory.registration.service.bunjang.IntegratedBunjangService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -27,10 +25,8 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 public class BunjangApiController {
 
-    private final CdpTokenCaptureService cdpTokenCaptureService;
     private final TokenBundleService tokenBundleService;
     private final BunjangApiRegistrationService apiRegistrationService;
-    private final IntegratedBunjangService integratedService;
 
     /**
      * 로그인 및 토큰 캡처 (통합 플로우)
@@ -40,7 +36,10 @@ public class BunjangApiController {
         try {
             log.info("🔍 Starting integrated login and token capture process...");
             
-            Map<String, Object> result = integratedService.loginAndCaptureToken();
+            Map<String, Object> result = Map.of(
+                "success", false,
+                "message", "This endpoint is deprecated. Use /api/automation/bunjang/session/open-with-product instead."
+            );
             
             if ((Boolean) result.get("success")) {
                 log.info("✅ Integrated login and token capture completed successfully");
@@ -67,7 +66,10 @@ public class BunjangApiController {
         try {
             log.info("📦 Starting integrated product registration: {}", request.name);
             
-            Map<String, Object> result = integratedService.registerProduct(request);
+            Map<String, Object> result = Map.of(
+                "success", false,
+                "message", "This endpoint is deprecated. Use /api/automation/bunjang/session/open-with-product instead."
+            );
             
             if ((Boolean) result.get("success")) {
                 log.info("✅ Integrated product registration completed successfully");

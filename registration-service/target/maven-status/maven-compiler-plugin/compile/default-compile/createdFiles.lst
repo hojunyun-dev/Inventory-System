@@ -1,12 +1,9 @@
-com/inventory/registration/controller/SimpleAutomationController.class
-com/inventory/registration/service/BunjangAutomationService.class
 com/inventory/registration/controller/AutomationController.class
 com/inventory/registration/model/AutomationResult.class
 com/inventory/registration/dto/ErrorResponse.class
 com/inventory/registration/constants/SelectorConstants$Common.class
 com/inventory/registration/entity/RegistrationTemplate.class
 com/inventory/registration/model/AutomationResult$AutomationResultBuilder.class
-com/inventory/registration/service/bunjang/IntegratedBunjangService.class
 com/inventory/registration/config/SecurityConfig.class
 com/inventory/registration/service/BunjangRegistrationService.class
 com/inventory/registration/RegistrationServiceApplication.class
@@ -25,9 +22,7 @@ com/inventory/registration/constants/SelectorConstants$Danggeun.class
 com/inventory/registration/service/bunjang/BunjangApiRegistrationService.class
 com/inventory/registration/service/NaverSocialAutomationService.class
 com/inventory/registration/controller/ProductRegistrationController.class
-com/inventory/registration/service/TokenService.class
 com/inventory/registration/service/BaseAutomationService.class
-com/inventory/registration/service/bunjang/CdpTokenCaptureService.class
 com/inventory/registration/dto/RegistrationStatusResponse$RegistrationSummary.class
 com/inventory/registration/controller/NaverSocialAutomationController.class
 com/inventory/registration/service/bunjang/AwsIpRotationService.class

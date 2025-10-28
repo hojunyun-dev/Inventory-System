@@ -126,9 +126,39 @@ public class BunjangFormHandler {
      * 상품 등록 폼이 현재 페이지에 존재하는지 확인
      */
     private boolean isProductFormPresent(WebDriver d){
-        return existsDisplayed(d, By.cssSelector("form")) &&
-               (existsDisplayed(d, By.cssSelector("form input[name*='title'], form input[placeholder*='상품']"))
-                || existsDisplayed(d, By.cssSelector("form textarea")));
+        try {
+            String currentUrl = d.getCurrentUrl();
+            log.info("Checking form presence on URL: {}", currentUrl);
+            
+            // 폼 존재 확인
+            boolean hasForm = existsDisplayed(d, By.cssSelector("form"));
+            log.info("Has form: {}", hasForm);
+            
+            // 데스크톱 버전 폼 확인
+            boolean desktopForm = hasForm &&
+                   (existsDisplayed(d, By.cssSelector("form input[name*='title'], form input[placeholder*='상품']"))
+                    || existsDisplayed(d, By.cssSelector("form textarea")));
+            
+            // 모바일 버전 폼 확인 (m.bunjang.co.kr)
+            boolean mobileForm = hasForm &&
+                   (existsDisplayed(d, By.cssSelector("input[placeholder*='상품명'], input[placeholder*='제목']"))
+                    || existsDisplayed(d, By.cssSelector("textarea[placeholder*='설명']"))
+                    || existsDisplayed(d, By.cssSelector("input[placeholder*='가격']"))
+                    || existsDisplayed(d, By.cssSelector("input[type='text']"))
+                    || existsDisplayed(d, By.cssSelector("textarea")));
+            
+            // 페이지 제목으로도 확인
+            boolean hasProductTitle = d.getTitle().contains("상품") || d.getTitle().contains("등록") || d.getTitle().contains("판매");
+            log.info("Has product title: {}", hasProductTitle);
+            
+            log.info("Form detection - Desktop: {}, Mobile: {}, HasForm: {}, HasProductTitle: {}", 
+                    desktopForm, mobileForm, hasForm, hasProductTitle);
+            
+            return desktopForm || mobileForm || (hasForm && hasProductTitle);
+        } catch (Exception e) {
+            log.error("Error checking form presence: {}", e.getMessage());
+            return false;
+        }
     }
     
     /**

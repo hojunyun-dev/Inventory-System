@@ -1,20 +1,17 @@
 package com.inventory.registration.service.bunjang;
 
-import com.example.common.dto.CookieEntry;
 import com.example.common.dto.TokenBundle;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -31,8 +28,15 @@ public class TokenBundleService {
     @Value("${token.storage.path:./tokens}")
     private String tokenStoragePath;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
     private final Map<String, TokenBundle> tokenCache = new ConcurrentHashMap<>();
+    
+    public TokenBundleService() {
+        this.objectMapper = new ObjectMapper();
+        // JSR310 모듈 등록 (java.time.Instant 지원)
+        this.objectMapper.registerModule(new JavaTimeModule());
+        log.info("✅ ObjectMapper configured with JSR310 module for java.time support");
+    }
 
     /**
      * TokenBundle 저장
