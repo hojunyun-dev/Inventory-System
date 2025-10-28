@@ -3,6 +3,7 @@ package com.inventory.registration.service;
 import com.inventory.registration.dto.ProductRegistrationRequest;
 import com.inventory.registration.entity.ProductRegistration;
 import com.inventory.registration.service.bunjang.*;
+import com.example.common.dto.TokenBundle;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,6 +49,12 @@ public class BunjangRegistrationService {
     
     @Autowired
     private BunjangUtils utils;
+    
+    @Autowired
+    private BunjangTokenCapturer tokenCapturer;
+    
+    @Autowired
+    private TokenBundleService tokenBundleService;
     
     private WebDriver webDriver;
     
@@ -162,47 +170,65 @@ public class BunjangRegistrationService {
             
             // 로그인 완료 대기 로직은 위에서 이미 처리됨
             
-            // ✅ 로그인 완료 후 즉시 판매하기 버튼 클릭 시도
-            log.info("🔍 Login completed! Attempting to navigate to product registration page...");
-            if (!navigateToProductRegistrationPage(driver)) {
-                log.error("Failed to navigate to product registration page after login");
-                return Map.of("success", false, "message", "로그인 후 상품 등록 페이지 진입 실패");
+            // ✅ 로그인 완료 후 토큰 캡처 수행
+            log.info("🔍 Login completed! Capturing authentication token...");
+            
+            String capturedToken = tokenCapturer.captureToken(driver);
+            if (capturedToken != null && tokenCapturer.isValidToken(capturedToken)) {
+                log.info("✅ Token captured and validated successfully");
+                
+                // 토큰을 TokenBundleService에 저장
+                try {
+                    TokenBundle tokenBundle = new TokenBundle();
+                    tokenBundle.platform = "BUNJANG";
+                    tokenBundle.csrf = capturedToken; // 토큰을 CSRF 필드에 저장
+                    tokenBundle.expiresAt = Instant.now().plus(Duration.ofHours(9)); // 9시간 후 만료 (한국 시간 기준)
+                    tokenBundle.cookies = java.util.Collections.emptyList(); // 빈 쿠키 리스트
+                    
+                    tokenBundleService.saveTokenBundle(tokenBundle);
+                    log.info("✅ Token saved to TokenBundleService successfully");
+                } catch (Exception e) {
+                    log.warn("⚠️ Failed to save token to TokenBundleService: {}", e.getMessage());
+                }
+                
+                return Map.of(
+                    "success", true, 
+                    "message", "로그인 완료 및 토큰 캡처 성공",
+                    "token", capturedToken
+                );
+            } else {
+                log.warn("⚠️ Token capture failed or invalid token");
+                return Map.of(
+                    "success", false, 
+                    "message", "로그인 완료되었으나 토큰 캡처 실패"
+                );
             }
         }
 
-        log.info("✅ Login confirmed. Proceeding with product registration...");
-
-        // ✅ 로그인 완료 후 무조건적으로 판매하기 버튼 클릭하여 상품 등록 페이지로 이동
-            if (productRequest != null) {
-            log.info("🚀 Starting automatic product registration...");
-            
-            // ✅ 상품 등록 페이지로 이동 (판매하기 버튼 클릭)
-            log.info("Navigating to product registration page via sell button...");
-            if (!navigateToProductRegistrationPage(driver)) {
-                log.error("Failed to navigate to product registration page");
-                return Map.of("success", false, "message", "상품 등록 페이지 진입 실패");
-            }
-            
-            // 페이지 로드 대기
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            
-            // 상품 등록 진행
-            log.info("Filling product form...");
-                            Map<String, Object> result = proceedWithProductRegistration(productRequest);
-            log.info("Product registration completed: {}", result);
-            return result;
-        }
+        log.info("✅ Login confirmed. Capturing token from existing session...");
         
-        return Map.of("success", true, "message", "로그인 완료. 등록 준비됨");
+        // 이미 로그인된 상태에서도 토큰 캡처 시도
+        String capturedToken = tokenCapturer.captureToken(driver);
+        if (capturedToken != null && tokenCapturer.isValidToken(capturedToken)) {
+            log.info("✅ Token captured from existing session");
+            return Map.of(
+                "success", true, 
+                "message", "기존 세션에서 토큰 캡처 성공",
+                "token", capturedToken
+            );
+        } else {
+            log.warn("⚠️ Token capture failed from existing session");
+            return Map.of(
+                "success", false, 
+                "message", "기존 세션에서 토큰 캡처 실패"
+            );
+        }
     }
     
     /**
-     * 판매하기 버튼을 클릭하여 상품 등록 페이지로 이동 (강화된 버전)
+     * 판매하기 버튼을 클릭하여 상품 등록 페이지로 이동 (강화된 버전) - DEPRECATED
      */
+    @Deprecated
     private boolean navigateToProductRegistrationPage(WebDriver driver) {
         log.info("🔍 Starting enhanced navigation to product registration page...");
         
@@ -592,6 +618,7 @@ public class BunjangRegistrationService {
             throw new RuntimeException("상품 등록 실패: " + e.getMessage());
         }
     }
+    
     
     /**
      * WebDriver 정리

@@ -34,6 +34,7 @@ com/inventory/dto/TokenResponse.class
 com/inventory/repository/OrderRepository.class
 com/inventory/service/ProductService.class
 com/inventory/dto/RegistrationResponse$RegistrationResponseBuilder.class
+com/inventory/config/WebConfig.class
 com/inventory/repository/OrderItemRepository.class
 com/inventory/controller/VehicleCompatibilityController.class
 com/inventory/config/SecurityConfig.class

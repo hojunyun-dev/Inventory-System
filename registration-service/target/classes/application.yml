@@ -125,6 +125,34 @@ automation:
   screenshot:
     enabled: true
     path: /tmp/screenshots
+
+# Selenium 설정 (CDP 자동적응)
+selenium:
+  headless: false  # false = UI 모드, true = Headless 모드
+  wait-timeout: 120  # 토큰 캡처 대기 시간 (초)
+  chrome-driver-path: ""  # Chrome 드라이버 경로 (비어있으면 자동)
+  user-data-dir: ""  # Chrome 사용자 데이터 디렉토리
+  login-wait-timeout-sec: 90  # 로그인 대기 시간 (초)
+
+# Chrome for Testing 설정
+chrome:
+  for-testing:
+    path: /home/code/chrome-for-testing/chrome-linux64/chrome
+  driver:
+    path: /home/code/chrome-for-testing/chromedriver-linux64/chromedriver
+
+# 토큰 저장소 설정
+token:
+  storage:
+    path: ./tokens
+
+# 번개장터 API 설정
+bunjang:
+  api:
+    base-url: https://m.bunjang.co.kr
+    product-endpoint: /api/sell
+  base-api: https://api.bunjang.co.kr
+  token-ping-path: /api/pms/v2/products
   # 프록시 설정 (IP 변경을 통한 감지 우회)
   proxy:
     enabled: ${PROXY_ENABLED:false}

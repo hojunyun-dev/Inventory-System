@@ -171,10 +171,17 @@ export const dashboardApi = {
   getUnreadNotificationCount: () => api.get<number>('/dashboard/notifications/unread-count'),
 };
 
-// 번개장터 API
+// 번개장터 API (registration-service로 직접 호출)
+const bunjangApiClient = axios.create({
+  baseURL: 'http://localhost:8082/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
 export const bunjangApi = {
-  checkLoginStatus: () => api.get('/automation/bunjang/session/status'),
-  openForManualLogin: () => api.post('/automation/bunjang/session/open'),
+  checkLoginStatus: () => bunjangApiClient.get('/automation/bunjang/session/status'),
+  openForManualLogin: () => bunjangApiClient.post('/automation/bunjang/session/open'),
   openWithProduct: (productData: {
     productId: number;
     productName: string;
@@ -182,8 +189,8 @@ export const bunjangApi = {
     price: number;
     quantity: number;
     category: string;
-  }) => api.post('/automation/bunjang/session/open-with-product', productData),
-  closeSession: () => api.post('/automation/bunjang/session/close'),
+  }) => bunjangApiClient.post('/automation/bunjang/session/open-with-product', productData),
+  closeSession: () => bunjangApiClient.post('/automation/bunjang/session/close'),
   registerProduct: (productData: {
     productId: number;
     productName: string;
@@ -191,7 +198,7 @@ export const bunjangApi = {
     price: number;
     quantity: number;
     category: string;
-  }) => api.post('/automation/bunjang/register', productData)
+  }) => bunjangApiClient.post('/automation/platform/bunjang/register', productData)
 };
 
 export default api;

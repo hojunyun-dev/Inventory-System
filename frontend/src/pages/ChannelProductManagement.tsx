@@ -5,8 +5,7 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions, Grid, IconButton, Tabs, Tab,
 } from '@mui/material';
 import {
-  Add as AddIcon, Store as StoreIcon, Edit as EditIcon, Delete as DeleteIcon,
-  Sync as SyncIcon, Link as LinkIcon,
+  Add as AddIcon, Store as StoreIcon, Delete as DeleteIcon,
 } from '@mui/icons-material';
 import api from '../services/api';
 import { Channel, ChannelProduct, ChannelProductStatus, Product } from '../types';
@@ -142,7 +141,11 @@ const ChannelProductManagement: React.FC = () => {
           console.log('번개장터에 로그인되어 있습니다. 상품 등록을 자동으로 진행합니다.');
           
           try {
-            const registerResponse = await api.post('/automation/bunjang/register', {
+            if (!prod.id) {
+              throw new Error('상품 ID가 없습니다.');
+            }
+            
+            const registerResponse = await bunjangApi.registerProduct({
               productId: prod.id,
               productName: prod.name,
               description: prod.description || '상품 설명입니다.',

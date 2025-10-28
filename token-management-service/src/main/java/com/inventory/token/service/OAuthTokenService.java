@@ -29,14 +29,9 @@ public class OAuthTokenService {
     private final PlatformTokenRepository tokenRepository;
     private final WebClient.Builder webClientBuilder;
     
-    @Value("${oauth.naver.token-url}")
-    private String naverTokenUrl;
-    
-    @Value("${oauth.cafe24.token-url}")
-    private String cafe24TokenUrl;
-    
-    @Value("${oauth.coupang.token-url}")
-    private String coupangTokenUrl;
+    private final String naverTokenUrl = "https://nid.naver.com/oauth2.0/token";
+    private final String cafe24TokenUrl = "https://your-mall.cafe24api.com/api/v2/oauth/token";
+    private final String coupangTokenUrl = "https://api-gateway.coupang.com/v2/providers/oauth_provider/token";
     
     public TokenResponse getToken(String platform) {
         log.info("Getting token for platform: {}", platform);

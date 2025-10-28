@@ -23,10 +23,7 @@ public class ProductRegistrationService {
     
     private final ProductRegistrationRepository registrationRepository;
     private final NaverRegistrationService naverService;
-    private final Cafe24RegistrationService cafe24Service;
-    private final CoupangRegistrationService coupangService;
     private final BunjangRegistrationService bunjangService;
-    private final DanggeunRegistrationService danggeunService;
     
     @Async
     @Transactional
@@ -87,14 +84,8 @@ public class ProductRegistrationService {
         switch (platform) {
             case "naver":
                 return naverService.registerProduct(request);
-            case "cafe24":
-                return cafe24Service.registerProduct(request);
-            case "coupang":
-                return coupangService.registerProduct(request);
             case "bunjang":
                 return bunjangService.registerProduct(request);
-            case "danggeun":
-                return danggeunService.registerProduct(request);
             default:
                 throw new IllegalArgumentException("Unsupported platform: " + platform);
         }
