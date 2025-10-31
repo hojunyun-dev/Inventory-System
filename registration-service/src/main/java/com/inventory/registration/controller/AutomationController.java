@@ -196,6 +196,30 @@ public class AutomationController {
             
             // 3. 토큰이 없거나 만료되었거나 API 등록 실패 시 브라우저 로그인 플로우
             log.info("🔐 브라우저 로그인 플로우를 시작합니다.");
+            // 백엔드에 PENDING 상태 선반영 콜백(외부ID 없이)
+            try {
+                String backendUrl = System.getenv().getOrDefault("BACKEND_BASE_URL", "http://backend:8080");
+                Map<String, Object> cb = Map.of(
+                        "productId", Long.valueOf(productId),
+                        "channel", "BUNJANG",
+                        "platformProductId", "",
+                        "platformUrl", ""
+                );
+                org.springframework.web.reactive.function.client.WebClient.create()
+                        .post()
+                        .uri(backendUrl + "/api/channel-products/callback")
+                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                        .bodyValue(cb)
+                        .retrieve()
+                        .toBodilessEntity()
+                        .onErrorResume(err -> {
+                            log.warn("PENDING callback failed (ignored): {}", err.getMessage());
+                            return reactor.core.publisher.Mono.empty();
+                        })
+                        .block();
+            } catch (Exception e) {
+                log.warn("PENDING callback error (ignored): {}", e.getMessage());
+            }
             Map<String, Object> result = bunjangRegistrationService.openForManualLogin(productRequest);
             
             log.info("Bunjang registration result: {}", result);

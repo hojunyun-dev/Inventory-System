@@ -138,10 +138,19 @@ public class BunjangApiRegistrationService {
                     cbBody.put("platformUrl", platformUrl);
 
                     try {
-                        webClient.post()
+                        // 서명 생성(옵션): CALLBACK_SECRET 존재 시 적용
+                        String secret = System.getenv("CALLBACK_SECRET");
+                        org.springframework.web.reactive.function.client.WebClient.RequestBodySpec spec = webClient.post()
                             .uri(cbUrl)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .bodyValue(cbBody)
+                            .contentType(MediaType.APPLICATION_JSON);
+
+                        if (secret != null && !secret.isBlank()) {
+                            String canonical = String.valueOf(cbBody.get("productId")) + "|" + cbBody.get("channel") + "|" + cbBody.get("platformProductId") + "|" + cbBody.get("platformUrl");
+                            String sig = hmacSha256Hex(secret, canonical);
+                            spec = spec.header("X-Signature", sig);
+                        }
+
+                        spec.bodyValue(cbBody)
                             .retrieve()
                             .toBodilessEntity()
                             .timeout(Duration.ofSeconds(5))
@@ -547,6 +556,20 @@ public class BunjangApiRegistrationService {
     private boolean isRetryable(Throwable ex) {
         String s = String.valueOf(ex.getMessage());
         return s.contains("429") || s.contains("5xx") || s.contains("timeout");
+    }
+
+    private String hmacSha256Hex(String secret, String data) {
+        try {
+            javax.crypto.Mac mac = javax.crypto.Mac.getInstance("HmacSHA256");
+            mac.init(new javax.crypto.spec.SecretKeySpec(secret.getBytes(java.nio.charset.StandardCharsets.UTF_8), "HmacSHA256"));
+            byte[] raw = mac.doFinal(data.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : raw) sb.append(String.format("%02x", b));
+            return sb.toString();
+        } catch (Exception e) {
+            log.warn("HMAC generation failed: {}", e.getMessage());
+            return "";
+        }
     }
 
     /**
