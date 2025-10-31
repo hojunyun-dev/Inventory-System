@@ -111,7 +111,57 @@ public class BunjangApiRegistrationService {
             HttpHeaders headers = buildHeaders(tokenBundle);
             
             // 4. API 호출
-            return callBunjangApi(url, requestBody, headers);
+            Map<String, Object> apiResp = callBunjangApi(url, requestBody, headers);
+
+            // 5. 등록 성공 시 백엔드에 콜백(채널별 상품관리 반영)
+            try {
+                String pid = null;
+                if (apiResp != null && apiResp.get("data") instanceof Map<?,?> dataMap) {
+                    Object pidObj = ((Map<?,?>) dataMap).get("pid");
+                    if (pidObj != null) pid = String.valueOf(pidObj);
+                }
+
+                if (pid != null && !pid.isBlank()) {
+                    String platformUrl = "https://bunjang.co.kr/products/" + pid;
+                    String cbUrl = backendBaseUrl + "/api/channel-products/callback";
+
+                    Map<String, Object> cbBody = new LinkedHashMap<>();
+                    try {
+                        Long productIdLong = request.productId != null ? Long.valueOf(request.productId) : null;
+                        cbBody.put("productId", productIdLong);
+                    } catch (Exception e) {
+                        log.warn("Invalid productId for callback: {}", request.productId);
+                        cbBody.put("productId", null);
+                    }
+                    cbBody.put("channel", "BUNJANG");
+                    cbBody.put("platformProductId", pid);
+                    cbBody.put("platformUrl", platformUrl);
+
+                    try {
+                        webClient.post()
+                            .uri(cbUrl)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .bodyValue(cbBody)
+                            .retrieve()
+                            .toBodilessEntity()
+                            .timeout(Duration.ofSeconds(5))
+                            .onErrorResume(err -> {
+                                log.warn("Channel product callback failed: {}", err.getMessage());
+                                return Mono.empty();
+                            })
+                            .block();
+                        log.info("🔔 Channel product callback sent: productId={}, pid={}", request.productId, pid);
+                    } catch (Exception e) {
+                        log.warn("Channel product callback error: {}", e.getMessage());
+                    }
+                } else {
+                    log.info("Callback skipped: pid not found in response (likely pending or failure).");
+                }
+            } catch (Exception e) {
+                log.warn("Callback processing error: {}", e.getMessage());
+            }
+
+            return apiResp;
             
         }).onErrorMap(throwable -> {
             log.error("❌ Product registration failed: {}", throwable.getMessage(), throwable);

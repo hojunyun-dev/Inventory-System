@@ -39,6 +39,61 @@ public class ChannelProductController {
         }
     }
 
+    /**
+     * 등록서비스(8082)에서 성공적으로 플랫폼에 상품을 등록한 뒤 호출하는 콜백 엔드포인트.
+     * - 멱등: productId + channel 조합으로 기존 레코드가 있으면 갱신, 없으면 생성
+     * - platformProductId / platformUrl 반영, 상태는 ACTIVE로 세팅
+     */
+    @PostMapping("/callback")
+    public ResponseEntity<ChannelProductDto> upsertFromRegistration(@RequestBody RegistrationCallbackRequest request) {
+        if (request.getProductId() == null || request.getChannel() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Optional<Product> productOpt = productRepository.findById(request.getProductId());
+        if (productOpt.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // find existing by productId then filter by channel (간단 구현)
+        List<ChannelProduct> existingList = channelProductRepository.findByProductId(request.getProductId());
+        ChannelProduct entity = existingList.stream()
+                .filter(cp -> request.getChannel().equalsIgnoreCase(cp.getChannel()))
+                .findFirst()
+                .orElseGet(() -> {
+                    ChannelProduct cp = new ChannelProduct();
+                    cp.setProduct(productOpt.get());
+                    cp.setChannel(request.getChannel());
+                    cp.setStatus(ChannelProduct.Status.ACTIVE);
+                    cp.setAllocatedQuantity(0);
+                    cp.setSoldQuantity(0);
+                    return cp;
+                });
+
+        entity.setPlatformProductId(request.getPlatformProductId());
+        entity.setPlatformUrl(request.getPlatformUrl());
+        entity.setStatus(ChannelProduct.Status.ACTIVE);
+
+        ChannelProduct saved = channelProductRepository.save(entity);
+        return ResponseEntity.ok(ChannelProductDto.fromEntity(saved));
+    }
+
+    public static class RegistrationCallbackRequest {
+        private Long productId;
+        private String channel; // BUNJANG 등
+        private String platformProductId;
+        private String platformUrl;
+
+        public Long getProductId() { return productId; }
+        public void setProductId(Long productId) { this.productId = productId; }
+        public String getChannel() { return channel; }
+        public void setChannel(String channel) { this.channel = channel; }
+        public String getPlatformProductId() { return platformProductId; }
+        public void setPlatformProductId(String platformProductId) { this.platformProductId = platformProductId; }
+        public String getPlatformUrl() { return platformUrl; }
+        public void setPlatformUrl(String platformUrl) { this.platformUrl = platformUrl; }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ChannelProductDto> getChannelProductById(@PathVariable Long id) {
         return channelProductRepository.findById(id)
