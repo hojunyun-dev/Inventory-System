@@ -34,7 +34,7 @@
 | **backend** | 8080 | 메인 재고/상품/주문 관리 API (앱은 주로 여기 연동) |
 | **token-service** | 8083 | 플랫폼별 로그인 토큰·쿠키 관리 |
 | **registration-service** | 8082 | Selenium 기반 브라우저 자동화 + 상품 등록 |
-| **frontend** | 3000 | 현재 테스트용 웹 UI (앱으로 대체 예정) |
+| **frontend** | 3000 | 현재 React 프론트로 테스트 중이며, 앱 완성 시 제거 예정 |
 | **mariadb** | 3307 | 공통 데이터 저장소 |
 | **selenium** | 4444, 7900 | 브라우저 자동화 컨테이너 (noVNC 시각화) |
 
@@ -189,6 +189,8 @@ services:
     → 첫 로그인 플로우로 전환
 ```
 
+> 참고: "로그아웃 후 브라우저 세션 자동 종료/정리" 기능은 지속 개선 중입니다.
+
 ---
 
 ## 4. API 명세
@@ -209,7 +211,8 @@ Request Body:
 Response 200 OK:
 {
   "message": "로그인 성공",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "timestamp": "2025-10-31T05:20:00Z"
 }
 ```
@@ -339,6 +342,8 @@ Response 200 OK (미로그인):
 }
 ```
 
+> 이 엔드포인트는 **백엔드(8080) 경유**이며, 백엔드가 내부에서 `registration-service(8082)`를 호출해 실제 상태를 조회합니다. 앱이 `registration-service`를 직접 호출하지 않습니다.
+
 ### 4.4 공통 응답 형식
 
 모든 API 응답은 다음 형식을 따릅니다:
@@ -387,7 +392,7 @@ const API_CONFIG = {
 ```typescript
 // 로그인 후
 const response = await axios.post('/auth/login', { username, password });
-const token = response.data.token;
+const token = response.data.accessToken;
 
 // 앱 로컬 저장소에 저장
 await AsyncStorage.setItem('authToken', token);
@@ -468,14 +473,14 @@ const registerToBunjang = async (product: Product) => {
     const statusResponse = await axiosInstance.get('/api/automation/bunjang/session/status');
     
     if (!statusResponse.data.loggedIn) {
-      // 미로그인: 브라우저 창 열기 안내
+      // 미로그인: 등록서비스의 noVNC 브라우저 열기 안내 (백엔드 경유)
       Alert.alert(
         '로그인 필요',
         '번개장터에 로그인이 필요합니다. 브라우저에서 로그인해주세요.',
         [{ text: '확인' }]
       );
       
-      // 등록 서비스에 등록 요청 (브라우저 자동 열림)
+      // 등록 서비스에 등록 요청 (백엔드가 내부에서 registration-service 호출하여 브라우저 자동 열림)
       await axiosInstance.post('/api/automation/platform/bunjang/register', {
         productId: product.id,
         productName: product.name,
@@ -513,10 +518,16 @@ const registerToBunjang = async (product: Product) => {
 
 **앱 개발 시 확인사항**:
 - 백엔드 `SecurityConfig.java`에서 앱 도메인 허용 필요
-- 현재: `localhost:3000` (웹 프론트엔드) 허용
-- **추가 필요**: 앱 도메인 (`capacitor://localhost`, `http://localhost` 등)
+- 현재: `http://localhost:3000` (웹 프론트엔드) 허용
+- **앱/배포 도메인 추가** 예시: `capacitor://localhost`, `http://localhost`, `https://inventory-app.vercel.app`
 
-### 5.6 테스트 시나리오
+### 5.6 noVNC 오픈 방법 (앱)
+
+앱에서는 실제 외부 브라우저가 아니라 **WebView 또는 In-App Browser**로
+`http://localhost:7900/?autoconnect=true&resize=scale`를 띄우는 것을 권장합니다.
+- React Native 예시: `react-native-webview` 또는 `react-native-inappbrowser-reborn`
+
+### 5.7 테스트 시나리오
 
 #### 시나리오 1: 정상 등록
 ```
@@ -565,7 +576,7 @@ const registerToBunjang = async (product: Product) => {
 ### 6.2 다음 단계
 
 🔄 **개발 중**:
-- 여러 플랫폼 병렬 등록 (네이버, 당근마켓 등)
+- 여러 플랫폼 **병렬(또는 순차)** 등록 (네이버, 당근마켓 등)
 - 로그인 세션 영구 저장 및 자동 갱신
 - 앱에서 플랫폼 연결/해제 UI
 
