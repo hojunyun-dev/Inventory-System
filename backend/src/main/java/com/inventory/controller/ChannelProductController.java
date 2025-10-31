@@ -68,20 +68,36 @@ public class ChannelProductController {
             return ResponseEntity.badRequest().build();
         }
 
+        // 채널 코드 정규화: 프론트 enum과 일치하도록 통일
+        String normalizedChannel = normalizeChannelCode(request.getChannel());
+
         // find existing by productId then filter by channel (간단 구현)
         List<ChannelProduct> existingList = channelProductRepository.findByProductId(request.getProductId());
         ChannelProduct entity = existingList.stream()
-                .filter(cp -> request.getChannel().equalsIgnoreCase(cp.getChannel()))
+                .filter(cp -> normalizedChannel.equalsIgnoreCase(cp.getChannel()))
                 .findFirst()
                 .orElseGet(() -> {
                     ChannelProduct cp = new ChannelProduct();
                     cp.setProduct(productOpt.get());
-                    cp.setChannel(request.getChannel());
+                    cp.setChannel(normalizedChannel);
                     cp.setStatus(ChannelProduct.Status.ACTIVE);
                     cp.setAllocatedQuantity(0);
                     cp.setSoldQuantity(0);
                     return cp;
                 });
+
+        // 기존 레코드가 구 채널코드(BUNJANG 등)로 저장되어 있으면 최신 코드로 업데이트
+        if (!normalizedChannel.equalsIgnoreCase(entity.getChannel())) {
+            entity.setChannel(normalizedChannel);
+        }
+
+        // 넘어온 가격/수량이 있으면 반영
+        if (request.getChannelPrice() != null) {
+            entity.setChannelPrice(request.getChannelPrice());
+        }
+        if (request.getAllocatedQuantity() != null) {
+            entity.setAllocatedQuantity(request.getAllocatedQuantity());
+        }
 
         // platformProductId 가 없으면 대기(PENDING)로 표시, 있으면 확정(ACTIVE)
         entity.setPlatformProductId(request.getPlatformProductId());
@@ -96,11 +112,22 @@ public class ChannelProductController {
         return ResponseEntity.ok(ChannelProductDto.fromEntity(saved));
     }
 
+    private static String normalizeChannelCode(String channel) {
+        if (channel == null) return null;
+        String upper = channel.toUpperCase();
+        if (upper.equals("BUNJANG") || upper.equals("BUNGAE") || upper.equals("BUNGAE-JANGTER")) {
+            return "BUNGAE_MARKET";
+        }
+        return channel;
+    }
+
     public static class RegistrationCallbackRequest {
         private Long productId;
         private String channel; // BUNJANG 등
         private String platformProductId;
         private String platformUrl;
+        private Double channelPrice; // 선택 전달
+        private Integer allocatedQuantity; // 선택 전달
 
         public Long getProductId() { return productId; }
         public void setProductId(Long productId) { this.productId = productId; }
@@ -110,6 +137,10 @@ public class ChannelProductController {
         public void setPlatformProductId(String platformProductId) { this.platformProductId = platformProductId; }
         public String getPlatformUrl() { return platformUrl; }
         public void setPlatformUrl(String platformUrl) { this.platformUrl = platformUrl; }
+        public Double getChannelPrice() { return channelPrice; }
+        public void setChannelPrice(Double channelPrice) { this.channelPrice = channelPrice; }
+        public Integer getAllocatedQuantity() { return allocatedQuantity; }
+        public void setAllocatedQuantity(Integer allocatedQuantity) { this.allocatedQuantity = allocatedQuantity; }
     }
 
     // 간단 HMAC 유틸

@@ -133,9 +133,14 @@ public class BunjangApiRegistrationService {
                         log.warn("Invalid productId for callback: {}", request.productId);
                         cbBody.put("productId", null);
                     }
-                    cbBody.put("channel", "BUNJANG");
+                    // 프론트 enum과 일치하도록 채널 코드를 통일(BUNGAE_MARKET)
+                    cbBody.put("channel", "BUNGAE_MARKET");
                     cbBody.put("platformProductId", pid);
                     cbBody.put("platformUrl", platformUrl);
+                    // 가격 정보는 전달, 수량은 선반영 콜백(컨트롤러)에서 처리
+                    try {
+                        if (request.price != null) cbBody.put("channelPrice", request.price);
+                    } catch (Exception ignore) {}
 
                     try {
                         // 서명 생성(옵션): CALLBACK_SECRET 존재 시 적용

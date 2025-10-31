@@ -176,6 +176,27 @@ public class AutomationController {
                 log.info("✅ 토큰 기반 로그인 상태 확인됨. API로 상품 등록을 진행합니다.");
                 
                 try {
+                    // 선반영: 가격/수량을 포함한 PENDING 콜백 먼저 전송(목록 즉시 표시용)
+                    try {
+                        String backendUrl = System.getenv().getOrDefault("BACKEND_BASE_URL", "http://backend:8080");
+                        java.util.Map<String, Object> cb0 = new java.util.LinkedHashMap<>();
+                        cb0.put("productId", Long.valueOf(productId));
+                        cb0.put("channel", "BUNGAE_MARKET");
+                        cb0.put("platformProductId", "");
+                        cb0.put("platformUrl", "");
+                        try { cb0.put("channelPrice", Double.parseDouble(price)); } catch (Exception ignore) {}
+                        try { cb0.put("allocatedQuantity", Integer.parseInt(quantity)); } catch (Exception ignore) {}
+                        org.springframework.web.reactive.function.client.WebClient.create()
+                                .post()
+                                .uri(backendUrl + "/api/channel-products/callback")
+                                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                                .bodyValue(cb0)
+                                .retrieve()
+                                .toBodilessEntity()
+                                .onErrorResume(err -> reactor.core.publisher.Mono.empty())
+                                .block();
+                    } catch (Exception ignore) {}
+
                     com.inventory.registration.entity.ProductRegistration result = 
                         bunjangRegistrationService.registerProduct(productRequest);
                     
@@ -199,12 +220,19 @@ public class AutomationController {
             // 백엔드에 PENDING 상태 선반영 콜백(외부ID 없이)
             try {
                 String backendUrl = System.getenv().getOrDefault("BACKEND_BASE_URL", "http://backend:8080");
-                Map<String, Object> cb = Map.of(
-                        "productId", Long.valueOf(productId),
-                        "channel", "BUNJANG",
-                        "platformProductId", "",
-                        "platformUrl", ""
-                );
+                java.util.Map<String, Object> cb = new java.util.LinkedHashMap<>();
+                cb.put("productId", Long.valueOf(productId));
+                // 프론트 enum과 일치하도록 통일
+                cb.put("channel", "BUNGAE_MARKET");
+                cb.put("platformProductId", "");
+                cb.put("platformUrl", "");
+                // 가격/수량도 함께 전달하여 목록에 PENDING 상태에서도 표시
+                try {
+                    cb.put("channelPrice", Double.parseDouble(price));
+                } catch (Exception ignore) {}
+                try {
+                    cb.put("allocatedQuantity", Integer.parseInt(quantity));
+                } catch (Exception ignore) {}
                 org.springframework.web.reactive.function.client.WebClient.create()
                         .post()
                         .uri(backendUrl + "/api/channel-products/callback")
