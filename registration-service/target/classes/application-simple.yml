@@ -1,0 +1,32 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: simple-registration-service
+  profiles:
+    active: simple
+
+# 번개장터 API 설정
+bunjang:
+  base-url: "https://api.bunjang.co.kr"
+  product-create-endpoint: "/api/pms/v2/products"
+  auth-header-name: "x-bun-auth-token"
+
+# Selenium 설정
+selenium:
+  headless: false
+  chrome-driver-path: "" # C:\\chromedriver-win64\\chromedriver.exe
+  user-data-dir: "" # C:\\Users\\PC\\AppData\\Local\\Google\\Chrome\\User Data\\Profile 1
+  login-wait-timeout-sec: 120
+
+# 스케줄러 설정
+scheduler:
+  token-check-cron: "0 0/10 * * * *"  # 10분마다 토큰 유효성 검사
+
+logging:
+  level:
+    com.inventory.registration: DEBUG
+    org.springframework.web: DEBUG
+
+

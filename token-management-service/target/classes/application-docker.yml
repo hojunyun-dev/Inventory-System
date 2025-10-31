@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:mariadb://${DB_HOST:mariadb}:${DB_PORT:3306}/${DB_NAME:token_management_db}
+    driverClassName: org.mariadb.jdbc.Driver
+    username: ${DB_USERNAME:inventory}
+    password: ${DB_PASSWORD:inventory123}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+

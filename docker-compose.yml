@@ -1,0 +1,165 @@
+version: '3.8'
+
+services:
+  selenium:
+    image: selenium/standalone-chrome:117.0
+    container_name: inventory-selenium
+    restart: unless-stopped
+    shm_size: 2g
+    environment:
+      - SE_VNC_NO_PASSWORD=1
+      - SE_NODE_MAX_SESSIONS=1
+    ports:
+      - "4444:4444"    # WebDriver endpoint
+      - "7900:7900"    # noVNC web UI
+    networks:
+      - inventory-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:4444/wd/hub/status | grep 'ready' || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  # MariaDB 데이터베이스
+  mariadb:
+    image: mariadb:10.11
+    container_name: inventory-mariadb
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword123
+      MYSQL_DATABASE: inventory_system
+      MYSQL_USER: inventory
+      MYSQL_PASSWORD: inventory123
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./database/init:/docker-entrypoint-initdb.d
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      - inventory-network
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -prootpassword123 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # 백엔드 서비스
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: inventory-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_NAME=inventory_system
+      - DB_USERNAME=inventory
+      - DB_PASSWORD=inventory123
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - inventory-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/ || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # 토큰 관리 서비스
+  token-service:
+    build:
+      context: .
+      dockerfile: token-management-service/Dockerfile
+    container_name: inventory-token-service
+    restart: unless-stopped
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_NAME=token_management_db
+      - DB_USERNAME=inventory
+      - DB_PASSWORD=inventory123
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - inventory-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8083/actuator/health | grep 'UP' || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # 등록 서비스
+  registration-service:
+    build:
+      context: .
+      dockerfile: registration-service/Dockerfile
+    container_name: inventory-registration-service
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_NAME=registration_db
+      - DB_USERNAME=inventory
+      - DB_PASSWORD=inventory123
+      - token.management.service.url=http://token-service:8083
+      - backend.api.base-url=http://backend:8080
+      - bunjang.api.image-upload-url=https://media-center.bunjang.co.kr/upload/3496820/product
+      - bunjang.seller-id=3496820
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      backend:
+        condition: service_started
+      token-service:
+        condition: service_started
+      selenium:
+        condition: service_healthy
+    networks:
+      - inventory-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8082/actuator/health | grep 'UP' || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # 프론트엔드 서비스
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: inventory-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8080
+      - REACT_APP_TOKEN_SERVICE_URL=http://localhost:8083
+      - REACT_APP_REGISTRATION_SERVICE_URL=http://localhost:8082
+    depends_on:
+      backend:
+        condition: service_started
+      registration-service:
+        condition: service_started
+      token-service:
+        condition: service_started
+    networks:
+      - inventory-network
+
+volumes:
+  mariadb_data:
+
+networks:
+  inventory-network:
+    driver: bridge

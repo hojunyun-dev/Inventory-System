@@ -1,0 +1,188 @@
+server:
+  port: 8082
+  tomcat:
+    uri-encoding: UTF-8
+    relaxed-query-chars: ['[', ']']
+
+spring:
+  application:
+    name: registration-service
+  
+  datasource:
+    url: jdbc:mariadb://localhost:3307/registration_db
+    driverClassName: org.mariadb.jdbc.Driver
+    username: inventory
+    password: inventory123
+  
+  jpa:
+    database-platform: org.hibernate.dialect.MariaDBDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+  
+  security:
+    user:
+      name: admin
+      password: admin123
+  
+  # Jackson JSR310 모듈 활성화 (java.time.Instant 지원)
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+
+  # CORS 설정 (상단 spring.mvc.cors에서 설정됨)
+
+# Token Management Service Configuration
+token-service:
+  base-url: http://localhost:8083
+  endpoints:
+    tokens: /api/tokens
+    accounts: /api/accounts
+
+# OAuth 2.0 Configuration
+oauth:
+  naver:
+    api-base-url: https://api.commerce.naver.com
+    client-id: ${NAVER_CLIENT_ID:test-client-id}
+    client-secret: ${NAVER_CLIENT_SECRET:test-client-secret}
+    authorize-url: https://nid.naver.com/oauth2.0/authorize
+    token-url: https://nid.naver.com/oauth2.0/token
+    user-info-url: https://openapi.naver.com/v1/nid/me
+    redirect-uri: ${NAVER_REDIRECT_URI:http://localhost:8082/api/oauth/naver/callback}
+  cafe24:
+    api-base-url: https://your-mall.cafe24api.com/api/v2/admin
+    client-id: ${CAFE24_CLIENT_ID:test-client-id}
+    client-secret: ${CAFE24_CLIENT_SECRET:test-client-secret}
+    mall-id: ${CAFE24_MALL_ID:test-mall-id}
+  coupang:
+    api-base-url: https://api-gateway.coupang.com/v2/providers/openapi/apis/api/v1
+    api-key: ${COUPANG_API_KEY:}
+
+# Platform-specific configurations
+platforms:
+  naver:
+    api-base-url: https://api.commerce.naver.com
+    endpoints:
+      products: /products
+      categories: /categories
+      orders: /orders
+      inquiries: /inquiries
+      settlements: /settlements
+  bunjang:
+    base-url: https://www.bunjang.co.kr
+    login-url: https://www.bunjang.co.kr/login
+    register-url: https://www.bunjang.co.kr/products/new
+    endpoints:
+      login: /login
+      products: /products
+      register: /products/new
+    
+  cafe24:
+    api-base-url: https://your-mall.cafe24api.com/api/v2/admin
+    endpoints:
+      products: /products
+      orders: /orders
+      customers: /customers
+      boards: /boards
+      categories: /categories
+  coupang:
+    api-base-url: https://api-gateway.coupang.com/v2/providers/openapi/apis/api/v1
+    endpoints:
+      products: /marketplace/seller-products
+      orders: /ordersheets
+      settlements: /settlements
+  danggeun:
+    base-url: https://www.danggeunmarket.com
+    endpoints:
+      login: /login
+      products: /products
+  junggonara:
+    base-url: https://cafe.naver.com/joonggonara
+    endpoints:
+      login: /login
+      products: /products
+
+# Web automation settings
+automation:
+  browser:
+    headless: false
+    timeout: 30000
+    window-size: "1920,1080"
+    remote-url: ""  # Docker 환경에서 사용할 원격 WebDriver URL
+  retry:
+    max-attempts: 3
+    delay: 2000
+  screenshot:
+    enabled: true
+    path: /tmp/screenshots
+
+# Selenium 설정 (CDP 자동적응)
+selenium:
+  headless: false  # false = UI 모드, true = Headless 모드
+  wait-timeout: 120  # 토큰 캡처 대기 시간 (초)
+  chrome-driver-path: ""  # Chrome 드라이버 경로 (비어있으면 자동)
+  user-data-dir: ""  # Chrome 사용자 데이터 디렉토리
+  login-wait-timeout-sec: 90  # 로그인 대기 시간 (초)
+
+# Chrome for Testing 설정 (v128)
+chrome:
+  for-testing:
+    path: /home/code/chrome-for-testing/chrome-linux64/chrome
+  driver:
+    path: /home/code/chrome-for-testing/chromedriver-linux64/chromedriver
+  version: 128.0.6613.84
+
+# 토큰 저장소 설정
+token:
+  storage:
+    path: ./tokens
+    enableFile: false
+  management:
+    enable: true
+    service:
+      url: http://localhost:8083
+  # 파일 저장 기본 비활성화 (운영: DB 단일 소스)
+
+# 번개장터 API 설정
+bunjang:
+  api:
+    base-url: https://api.bunjang.co.kr
+    product-endpoint: /api/pms/v2/products
+    # 이미지 업로드 API 설정 (둘 중 하나 이상 설정 필요)
+    image-upload-url: https://media-center.bunjang.co.kr/upload/3496820/product
+  seller-id: 3496820
+  base-api: https://api.bunjang.co.kr
+  token-ping-path: /api/pms/v2/products
+  # 프록시 설정 (IP 변경을 통한 감지 우회)
+  proxy:
+    enabled: ${PROXY_ENABLED:false}
+    host: ${PROXY_HOST:}
+    port: ${PROXY_PORT:8080}
+  # AWS EC2 IP 자동 변경 설정
+  aws:
+    enabled: ${AWS_IP_ROTATION_ENABLED:false}
+    region: ${AWS_REGION:ap-northeast-2}
+    instance-id: ${AWS_INSTANCE_ID:}
+    access-key: ${AWS_ACCESS_KEY:}
+    secret-key: ${AWS_SECRET_KEY:}
+    s3-bucket: ${AWS_S3_BUCKET:}
+    error-threshold: ${AWS_ERROR_THRESHOLD:5}
+  # 테스트용 계정 정보 (환경변수로 설정 권장)
+  # 실제 계정 정보는 .env.local 파일에 설정하세요
+  test-accounts:
+    naver:
+      username: ${NAVER_TEST_USERNAME:}
+      password: ${NAVER_TEST_PASSWORD:}
+
+logging:
+  level:
+    com.inventory.registration: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+

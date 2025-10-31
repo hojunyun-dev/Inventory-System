@@ -1,0 +1,174 @@
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Virtual machine crash logs
+hs_err_pid*
+
+# Maven
+# target/  # 주석 처리 - 컴파일된 클래스 포함
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Gradle
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+# Eclipse
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# VS Code
+.vscode/
+
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# React build
+/frontend/build/
+/frontend-backup/build/
+
+# Environment variables and sensitive data
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*
+*.env
+
+# Account credentials and sensitive information
+credentials/
+secrets/
+*.credentials
+*.secrets
+account-info.*
+login-info.*
+user-data.*
+sensitive-data.*
+
+# API Keys and tokens
+api-keys.*
+tokens.*
+oauth-credentials.*
+platform-accounts.*
+
+# Test account information
+test-accounts.*
+automation-accounts.*
+demo-credentials.*
+
+# Configuration files with sensitive data
+application-local.yml
+application-dev.yml
+application-prod.yml
+application-secret.yml
+config/secrets/
+config/credentials/
+
+# Browser automation data
+screenshots/
+automation-logs/
+webdriver-data/
+selenium-data/
+
+# Personal information files
+personal-data.*
+user-info.*
+private-keys.*
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# H2 Database
+backend/data/
+backend-backup/data/
+
+# Logs
+backend/backend.log
+backend-backup/backend.log
+frontend/frontend.log
+frontend-backup/frontend.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Backup files
+*backup*
+*backup-*
+
+# Allow main service directories and compiled classes
+!backend/
+!backend/target/
+!token-management-service/
+!token-management-service/target/
+!registration-service/
+!registration-service/target/
+!frontend/

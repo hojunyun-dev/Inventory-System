@@ -1,0 +1,32 @@
+spring:
+  datasource:
+    url: jdbc:mariadb://${DB_HOST:mariadb}:${DB_PORT:3306}/${DB_NAME:registration_db}
+    driverClassName: org.mariadb.jdbc.Driver
+    username: ${DB_USERNAME:inventory}
+    password: ${DB_PASSWORD:inventory123}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+token-service:
+  base-url: http://token-service:8083
+
+token:
+  management:
+    service:
+      url: http://token-service:8083
+
+backend:
+  api:
+    base-url: http://backend:8080
+
+selenium:
+  enabled: true
+
+automation:
+  browser:
+    headless: false
+    remote-url: http://selenium:4444/wd/hub
+
+

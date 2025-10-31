@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:mariadb://localhost:3306/token_management_test_db
+    driverClassName: org.mariadb.jdbc.Driver
+    username: root
+    password: password
+  
+  jpa:
+    database-platform: org.hibernate.dialect.MariaDBDialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+# Test Configuration
+encryption:
+  key: myEncryptionKey123456789012345678901234567890
+
+oauth:
+  naver:
+    token-url: https://test.naver.com/oauth2.0/token
+  cafe24:
+    token-url: https://test.cafe24.com/api/v2/oauth/token
+  coupang:
+    token-url: https://test.coupang.com/token
+
